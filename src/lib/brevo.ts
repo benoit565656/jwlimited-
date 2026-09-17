@@ -204,11 +204,8 @@ export function generateLuxuryEmailHtml(options: TemplateOptions = {}): string {
   const ctaText = options.ctaText || 'EXPLORE ALL 15 DESIGNS & CAST YOUR VOTE';
   const ctaUrl = options.ctaUrl || `${baseUrl}#gallery`;
   const registryUrl = `${baseUrl}#edition`;
-  const logoUrl = `${baseUrl}/brand/logo.webp`;
-  const heroBottleUrl = options.featuredImageUrl || `${baseUrl}/concepts/thumbs/concept-15.webp`;
-  const thumb1 = `${baseUrl}/concepts/thumbs/concept-13.webp`;
-  const thumb2 = `${baseUrl}/concepts/thumbs/concept-12.webp`;
-  const thumb3 = `${baseUrl}/concepts/thumbs/concept-14.webp`;
+  const logoUrl = `${baseUrl}/brand/logo.png`;
+  const heroBottleUrl = options.featuredImageUrl || `${baseUrl}/concepts/email-hero.jpg`;
 
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -372,31 +369,16 @@ export function generateLuxuryEmailHtml(options: TemplateOptions = {}): string {
                 </tr>
               </table>
 
-              <!-- Gallery Showcase Row -->
-              <div style="text-align: left; margin: 28px 0 12px 0;">
-                <span style="color: #D4AF37; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">
-                  Preview of Selected Directions:
-                </span>
-              </div>
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 28px;">
+              <!-- 15 Concepts Curation Callout -->
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #1B1B1B; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 6px; margin: 24px 0;">
                 <tr>
-                  <td width="32%" align="center" class="mobile-stack mobile-thumb" style="padding: 4px;">
-                    <a href="${ctaUrl}" target="_blank" style="text-decoration: none;">
-                      <img src="${thumb1}" alt="Concept 13 - Sarimanok" width="170" style="width: 100%; height: auto; border-radius: 4px; border: 1px solid #333333; display: block;" />
-                      <div style="font-size: 10px; color: #888888; margin-top: 6px;">#13: Sarimanok</div>
-                    </a>
-                  </td>
-                  <td width="32%" align="center" class="mobile-stack mobile-thumb" style="padding: 4px;">
-                    <a href="${ctaUrl}" target="_blank" style="text-decoration: none;">
-                      <img src="${thumb2}" alt="Concept 12 - Bakunawa" width="170" style="width: 100%; height: auto; border-radius: 4px; border: 1px solid #333333; display: block;" />
-                      <div style="font-size: 10px; color: #888888; margin-top: 6px;">#12: Bakunawa</div>
-                    </a>
-                  </td>
-                  <td width="32%" align="center" class="mobile-stack" style="padding: 4px;">
-                    <a href="${ctaUrl}" target="_blank" style="text-decoration: none;">
-                      <img src="${thumb3}" alt="Concept 14 - Ani Harvest" width="170" style="width: 100%; height: auto; border-radius: 4px; border: 1px solid #333333; display: block;" />
-                      <div style="font-size: 10px; color: #888888; margin-top: 6px;">#14: Ani (Golden Harvest)</div>
-                    </a>
+                  <td align="center" style="padding: 18px 20px;">
+                    <div style="color: #D4AF37; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;">
+                      15 Master Heritage Concepts Curated
+                    </div>
+                    <div style="color: #A9A49B; font-size: 13px; line-height: 20px;">
+                      From Mayon Volcano and Banaue to the mythological Bakunawa and Sarimanok — review all 15 bottle artworks in complete 360&deg; high-resolution detail.
+                    </div>
                   </td>
                 </tr>
               </table>
