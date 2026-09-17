@@ -45,6 +45,12 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean | null>(null);
 
+  // Admin login credentials state
+  const [adminUsername, setAdminUsername] = useState('admin');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
+
   // Settings form state
   const [settingsForm, setSettingsForm] = useState<Partial<Campaign>>({});
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -256,37 +262,103 @@ export default function AdminPage() {
     }
   };
 
-  // If not logged in as Admin, show administrator sign-in gateway
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingLogin(true);
+    setAdminError(null);
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: adminUsername,
+          password: adminPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Authentication failed');
+      }
+      setIsAdminAuthenticated(true);
+      await fetchAdminData();
+    } catch (err: any) {
+      setAdminError(err.message || 'Invalid administrator credentials');
+    } finally {
+      setIsSubmittingLogin(false);
+    }
+  };
+
+  // If not logged in as Admin, show administrator username & password sign-in
   if (!isLoading && !isAdminAuthenticated) {
     return (
       <div className="min-h-screen bg-ink flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-charcoal border border-gold/40 rounded-xl p-8 text-center text-ivory shadow-luxury">
-          <div className="w-14 h-14 rounded-full bg-wine/20 border border-gold/40 text-gold flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-7 h-7" />
+        <div className="max-w-md w-full bg-charcoal border border-gold/40 rounded-xl p-8 text-ivory shadow-luxury">
+          <div className="text-center mb-6">
+            <div className="relative h-10 w-44 mx-auto mb-4">
+              <Image
+                src="/brand/logo.webp"
+                alt="Manila Wine"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <h2 className="font-serif text-2xl text-ivory mb-1">Manila Wine Admin Portal</h2>
+            <p className="text-xs text-ivory/60">
+              Sign in with administrator credentials
+            </p>
           </div>
-          <h2 className="font-serif text-2xl text-ivory mb-2">Manila Wine Admin Portal</h2>
-          <p className="text-xs text-ivory/70 mb-6">
-            Authentication required with administrator credentials.
-          </p>
 
-          <div className="space-y-3">
+          {adminError && (
+            <div className="mb-4 p-3 rounded bg-wine/20 border border-wine/40 text-xs text-wine-light flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <span>{adminError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handlePasswordLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-ivory/70 mb-1.5 font-medium">
+                Username
+              </label>
+              <input
+                type="text"
+                value={adminUsername}
+                onChange={(e) => setAdminUsername(e.target.value)}
+                placeholder="admin"
+                required
+                className="w-full px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-xs text-ivory placeholder-ivory/30 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-ivory/70 mb-1.5 font-medium">
+                Password
+              </label>
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="Enter admin password"
+                required
+                autoFocus
+                className="w-full px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-xs text-ivory placeholder-ivory/30 focus:outline-none"
+              />
+            </div>
+
             <button
-              onClick={() => handleAdminSignIn('benoit5656@gmail.com')}
-              className="w-full py-3 rounded bg-wine hover:bg-wine-light text-white font-semibold text-xs tracking-wider uppercase shadow-wine-glow transition-colors"
+              type="submit"
+              disabled={isSubmittingLogin}
+              className="w-full py-3 rounded bg-wine hover:bg-wine-light text-white font-semibold text-xs tracking-wider uppercase shadow-wine-glow transition-all duration-200"
             >
-              Sign In as benoit5656@gmail.com
+              {isSubmittingLogin ? 'Authenticating...' : 'Sign In as Administrator'}
             </button>
+          </form>
 
-            <button
-              onClick={() => handleAdminSignIn('admin@manila-wine.com')}
-              className="w-full py-2.5 rounded bg-charcoal hover:bg-ink border border-charcoal-border hover:border-gold text-ivory/80 text-xs font-medium tracking-wider uppercase transition-colors"
-            >
-              Sign In as admin@manila-wine.com
-            </button>
-
+          <div className="mt-6 pt-4 border-t border-charcoal-border text-center">
             <Link
               href="/"
-              className="block w-full py-2.5 rounded border border-charcoal-border hover:border-gold text-ivory/60 hover:text-ivory text-xs transition-colors"
+              className="inline-block text-xs text-ivory/60 hover:text-gold transition-colors"
             >
               &larr; Return to Public Microsite
             </Link>
