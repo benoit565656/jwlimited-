@@ -28,11 +28,11 @@ export function Footer() {
             <div className="pt-2 text-xs space-y-2">
               <div className="flex items-center gap-2 text-ivory/80">
                 <Phone className="w-3.5 h-3.5 text-gold" />
-                <span>Sales & Support: <a href="tel:+639178600808" className="hover:text-gold transition-colors">+63917 860 0808</a></span>
+                <span>Customer Concierge: <a href="tel:+639178600808" className="hover:text-gold transition-colors">+63917 860 0808</a></span>
               </div>
               <div className="flex items-center gap-2 text-ivory/80">
                 <Mail className="w-3.5 h-3.5 text-gold" />
-                <span>Email: <a href="mailto:sales@manila-wine.com" className="hover:text-gold transition-colors">sales@manila-wine.com</a></span>
+                <span>Email: <a href="mailto:contact@manila-wine.com" className="hover:text-gold transition-colors">contact@manila-wine.com</a></span>
               </div>
             </div>
           </div>

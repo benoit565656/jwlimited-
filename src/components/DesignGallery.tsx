@@ -72,7 +72,7 @@ export function DesignGallery() {
                 {/* Visual Header / Concept Artwork Container */}
                 <div 
                   onClick={() => handleOpenLightbox(design.id)}
-                  className="relative aspect-[3/2] w-full cursor-pointer overflow-hidden bg-[#1E2024] group"
+                  className="relative aspect-[3/2] w-full cursor-pointer overflow-hidden rounded-t-xl bg-[#18191C] group"
                   tabIndex={0}
                   role="button"
                   aria-label={`View ${design.title} full screen`}
@@ -84,14 +84,14 @@ export function DesignGallery() {
                   }}
                 >
                   {/* Subtle backdrop pattern for transparency safety */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 pointer-events-none z-10" />
 
                   <Image
                     src={design.thumbnail_path || design.full_image_path}
                     alt={design.alt_text}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                    className="object-contain p-2.5 transition-all duration-700 ease-out group-hover:scale-125 group-hover:brightness-110 will-change-transform"
                     loading="lazy"
                   />
 
