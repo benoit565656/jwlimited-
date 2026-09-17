@@ -280,6 +280,22 @@ const INITIAL_DESIGNS: Design[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
+  {
+    id: 'c0000000-0000-0000-0000-000000000015',
+    campaign_id: DEFAULT_CAMPAIGN_ID,
+    code: 'Concept 15',
+    title: 'Concept 15 — Treasures of the Philippines',
+    subtitle: 'Mayon, Vigan, Banaue, Palawan & Iconic Heritage',
+    description: 'A breathtaking panorama of the nation’s greatest wonders: the majestic Mayon Volcano and Banaue Rice Terraces, historic Calle Crisologo in Vigan with a classic kalesa and jeepney, the enchanting Chocolate Hills with a Philippine tarsier, Palawan limestone karsts with traditional outriggers, and a vibrant vinta gliding beneath a glowing Christmas parol.',
+    alt_text: 'Four views of Johnnie Walker Blue Label bottle featuring Treasures of the Philippines with Mayon Volcano, Banaue terraces, Vigan colonial street, jeepney, tarsier, Palawan, and glowing Christmas parol.',
+    original_image_path: '/concepts/original/concept-15.png',
+    full_image_path: '/concepts/full/concept-15.webp',
+    thumbnail_path: '/concepts/thumbs/concept-15.webp',
+    sort_order: 15,
+    is_published: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
 ];
 
 class LocalDatabase {

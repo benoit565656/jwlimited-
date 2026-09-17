@@ -155,4 +155,16 @@ describe('Manila Wine Collector Choice Voting & Pledge Logic', () => {
     const myPledgeExport = pledgesExport.find(p => p.pledge_id === pledge.id);
     expect(myPledgeExport?.bottle_count).toBe(5);
   });
+
+  it('9. Loads all 15 bespoke bottle concepts including Concept 15 — Treasures of the Philippines', () => {
+    const designs = db.getDesigns(campaign.id);
+    expect(designs.length).toBe(15);
+
+    const concept15 = designs.find(d => d.code === 'Concept 15');
+    expect(concept15).toBeDefined();
+    expect(concept15?.title).toContain('Treasures of the Philippines');
+    expect(concept15?.full_image_path).toBe('/concepts/full/concept-15.webp');
+    expect(concept15?.thumbnail_path).toBe('/concepts/thumbs/concept-15.webp');
+    expect(concept15?.original_image_path).toBe('/concepts/original/concept-15.png');
+  });
 });

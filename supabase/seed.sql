@@ -256,5 +256,19 @@ insert into public.designs (
   '/concepts/thumbs/concept-14.webp',
   14,
   true
+),
+(
+  'c0000000-0000-0000-0000-000000000015',
+  'e29d749a-14d2-4ce0-8d59-20f5efc34001',
+  'Concept 15',
+  'Concept 15 — Treasures of the Philippines',
+  'Mayon, Vigan, Banaue, Palawan & Iconic Heritage',
+  'A breathtaking panorama of the nation’s greatest wonders: the majestic Mayon Volcano and Banaue Rice Terraces, historic Calle Crisologo in Vigan with a classic kalesa and jeepney, the enchanting Chocolate Hills with a Philippine tarsier, Palawan limestone karsts with traditional outriggers, and a vibrant vinta gliding beneath a glowing Christmas parol.',
+  'Four views of Johnnie Walker Blue Label bottle featuring Treasures of the Philippines with Mayon Volcano, Banaue terraces, Vigan colonial street, jeepney, tarsier, Palawan, and glowing Christmas parol.',
+  '/concepts/original/concept-15.png',
+  '/concepts/full/concept-15.webp',
+  '/concepts/thumbs/concept-15.webp',
+  15,
+  true
 )
 on conflict (id) do nothing;
