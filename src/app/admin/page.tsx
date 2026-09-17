@@ -29,7 +29,16 @@ import {
   Archive, 
   RefreshCw,
   LogOut,
-  Shield
+  Shield,
+  Send,
+  Sparkles,
+  Smartphone,
+  Monitor,
+  CheckCircle2,
+  AlertCircle,
+  Upload,
+  Play,
+  FileText
 } from 'lucide-react';
 import { formatPhp, formatDate } from '@/lib/utils';
 
@@ -61,6 +70,27 @@ export default function AdminPage() {
   // Invitations import state
   const [importEmailsText, setImportEmailsText] = useState('');
   const [importResult, setImportResult] = useState<any>(null);
+
+  // Brevo Studio State
+  const [brevoStatus, setBrevoStatus] = useState<any>(null);
+  const [brevoConfig, setBrevoConfig] = useState<any>(null);
+  const [isCheckingBrevo, setIsCheckingBrevo] = useState(false);
+  const [brevoSubject, setBrevoSubject] = useState('Exclusive Invitation: Shape the 100-Bottle Johnnie Walker Philippines Edition');
+  const [brevoHeadline, setBrevoHeadline] = useState('Exclusive Private Invitation');
+  const [brevoPreviewText, setBrevoPreviewText] = useState('Cast your decisive vote for the official 100-bottle Philippines Edition and reserve your numbered bottle.');
+  const [brevoCtaText, setBrevoCtaText] = useState('EXPLORE ALL 15 DESIGNS & CAST YOUR VOTE');
+  const [brevoTestEmail, setBrevoTestEmail] = useState('contact@manila-wine.com');
+  const [brevoBlastEmails, setBrevoBlastEmails] = useState('');
+  const [brevoCampaignName, setBrevoCampaignName] = useState('JW Philippines 100-Bottle Collector Invitation');
+  const [brevoCreateList, setBrevoCreateList] = useState(true);
+
+  const [brevoSendingTest, setBrevoSendingTest] = useState(false);
+  const [brevoTestMessage, setBrevoTestMessage] = useState<{ success: boolean; text: string } | null>(null);
+  const [brevoInjecting, setBrevoInjecting] = useState(false);
+  const [brevoInjectMessage, setBrevoInjectMessage] = useState<{ success: boolean; text: string } | null>(null);
+  const [brevoBlasting, setBrevoBlasting] = useState(false);
+  const [brevoBlastResult, setBrevoBlastResult] = useState<any>(null);
+  const [previewViewport, setPreviewViewport] = useState<'desktop' | 'mobile'>('desktop');
 
   const fetchAdminData = useCallback(async () => {
     setIsLoading(true);
@@ -262,6 +292,192 @@ export default function AdminPage() {
     }
   };
 
+  const fetchBrevoStatus = useCallback(async () => {
+    setIsCheckingBrevo(true);
+    try {
+      const res = await fetch('/api/admin/brevo');
+      const data = await res.json();
+      if (res.ok) {
+        setBrevoStatus(data.status);
+        setBrevoConfig(data.config);
+      }
+    } catch (err) {
+      console.error('Failed to check Brevo status:', err);
+    } finally {
+      setIsCheckingBrevo(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'invitations') {
+      fetchBrevoStatus();
+    }
+  }, [activeTab, fetchBrevoStatus]);
+
+  // Client-side email parsing and deduplication
+  const parsedRecipients = React.useMemo(() => {
+    if (!brevoBlastEmails.trim()) return { valid: [], invalid: [], total: 0, duplicatesCount: 0 };
+    const tokens = brevoBlastEmails
+      .split(/[\r\n,;\t ]+/)
+      .map(t => t.trim().replace(/^["']|["']$/g, ''))
+      .filter(Boolean);
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const seen = new Set<string>();
+    const valid: string[] = [];
+    const invalid: string[] = [];
+    let duplicatesCount = 0;
+
+    for (const token of tokens) {
+      const bracketMatch = token.match(/<([^>]+)>/);
+      const candidate = bracketMatch ? bracketMatch[1].trim() : token;
+      if (emailRegex.test(candidate)) {
+        const lower = candidate.toLowerCase();
+        if (seen.has(lower)) {
+          duplicatesCount++;
+        } else {
+          seen.add(lower);
+          valid.push(lower);
+        }
+      } else {
+        invalid.push(token);
+      }
+    }
+    return { valid, invalid, total: tokens.length, duplicatesCount };
+  }, [brevoBlastEmails]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setBrevoBlastEmails(prev => prev ? `${prev}\n${content}` : content);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleSendBrevoTest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!brevoTestEmail.trim()) {
+      alert('Please enter a destination email for the test.');
+      return;
+    }
+    setBrevoSendingTest(true);
+    setBrevoTestMessage(null);
+    try {
+      const res = await fetch('/api/admin/brevo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send-test',
+          toEmail: brevoTestEmail.trim(),
+          subject: `[TEST PREVIEW] ${brevoSubject}`,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBrevoTestMessage({
+          success: true,
+          text: `Test email successfully delivered to ${brevoTestEmail}! (Message ID: ${data.messageId})`,
+        });
+      } else {
+        setBrevoTestMessage({
+          success: false,
+          text: data.error || data.message || 'Failed to dispatch test email through Brevo.',
+        });
+      }
+    } catch (err: any) {
+      setBrevoTestMessage({ success: false, text: err.message || 'Network error.' });
+    } finally {
+      setBrevoSendingTest(false);
+    }
+  };
+
+  const handleInjectTemplate = async () => {
+    setBrevoInjecting(true);
+    setBrevoInjectMessage(null);
+    try {
+      const res = await fetch('/api/admin/brevo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'inject-template',
+          subject: brevoSubject,
+          templateName: 'Manila Wine - JW Collector\'s Choice VIP Invitation',
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBrevoInjectMessage({
+          success: true,
+          text: data.message || 'Template created/updated in your Brevo account!',
+        });
+      } else {
+        setBrevoInjectMessage({
+          success: false,
+          text: data.message || data.error || 'Failed to inject template into Brevo.',
+        });
+      }
+    } catch (err: any) {
+      setBrevoInjectMessage({ success: false, text: err.message || 'Network error.' });
+    } finally {
+      setBrevoInjecting(false);
+    }
+  };
+
+  const handleLaunchBlast = async () => {
+    if (parsedRecipients.valid.length === 0) {
+      alert('Please provide at least 1 valid email address to blast.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `CONFIRM EMAIL CAMPAIGN BLAST:\n\n` +
+      `You are about to blast this email to ${parsedRecipients.valid.length} VIP collectors.\n` +
+      `Sender: MANILA WINE <contact@manila-wine.com>\n` +
+      `Subject: ${brevoSubject}\n\n` +
+      `Do you want to proceed with sending now?`
+    );
+
+    if (!confirmed) return;
+
+    setBrevoBlasting(true);
+    setBrevoBlastResult(null);
+
+    try {
+      const res = await fetch('/api/admin/brevo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'launch-blast',
+          emails: parsedRecipients.valid,
+          subject: brevoSubject,
+          campaignName: brevoCampaignName,
+          createBrevoList: brevoCreateList,
+        }),
+      });
+      const data = await res.json();
+      setBrevoBlastResult(data);
+      if (data.success) {
+        fetchAdminData();
+      }
+    } catch (err: any) {
+      setBrevoBlastResult({
+        success: false,
+        sentCount: 0,
+        failedCount: parsedRecipients.valid.length,
+        errors: [err.message || 'Network failure during blast execution'],
+      });
+    } finally {
+      setBrevoBlasting(false);
+    }
+  };
+
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingLogin(true);
@@ -448,7 +664,7 @@ export default function AdminPage() {
             { id: 'settings', label: 'Campaign Settings', icon: Sliders },
             { id: 'designs', label: 'Design Artworks', icon: ImageIcon },
             { id: 'voters', label: 'Voters & Pledges', icon: Users },
-            { id: 'invitations', label: 'Invitations', icon: Mail },
+            { id: 'invitations', label: 'Email Campaigns (Brevo)', icon: Mail },
             { id: 'audit', label: 'Audit Log', icon: History },
           ].map(tab => {
             const Icon = tab.icon;
@@ -1095,79 +1311,487 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 5: INVITATIONS */}
+        {/* TAB 5: BREVO EMAIL CAMPAIGNS & BLAST */}
         {activeTab === 'invitations' && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-serif text-xl text-ivory">VIP Invitation Management</h3>
-              <p className="text-xs text-ivory/60">
-                Import emails of previous Johnnie Walker Blue edition buyers to grant exclusive access when campaign is in &apos;invite_only&apos; mode.
-              </p>
+          <div className="space-y-8">
+            
+            {/* Header & Subhead */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h3 className="font-serif text-2xl text-ivory flex items-center gap-2.5">
+                  <Mail className="w-6 h-6 text-gold" />
+                  Brevo Email Campaign Studio & Blast
+                </h3>
+                <p className="text-xs text-ivory/60 mt-1">
+                  Design luxury HTML invitations, inject templates into your Brevo builder, preview across devices, and blast campaigns to collector lists.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={fetchBrevoStatus}
+                  disabled={isCheckingBrevo}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded bg-ink border border-charcoal-border hover:border-gold/60 text-xs text-ivory/80 hover:text-white transition-colors"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-gold ${isCheckingBrevo ? 'animate-spin' : ''}`} />
+                  {isCheckingBrevo ? 'Checking Brevo...' : 'Refresh Status'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleInjectTemplate}
+                  disabled={brevoInjecting}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-gold/15 hover:bg-gold/25 border border-gold/40 text-xs font-semibold text-gold transition-colors"
+                >
+                  <Sparkles className={`w-3.5 h-3.5 ${brevoInjecting ? 'animate-spin' : ''}`} />
+                  {brevoInjecting ? 'Injecting to Brevo...' : 'Inject Template to Brevo Builder'}
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleImportInvitations} className="p-6 rounded-xl bg-charcoal border border-charcoal-border space-y-4">
-              <h4 className="text-sm font-semibold text-gold uppercase tracking-wider">Bulk Import VIP Emails</h4>
-              <textarea
-                rows={4}
-                value={importEmailsText}
-                onChange={(e) => setImportEmailsText(e.target.value)}
-                placeholder="vipbuyer1@example.com&#10;vipbuyer2@example.com"
-                className="w-full px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-xs text-ivory"
-              />
+            {/* Brevo Connection Status Banner */}
+            <div className="p-5 rounded-xl bg-charcoal border border-charcoal-border space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    brevoStatus?.connected 
+                      ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]' 
+                      : brevoStatus?.isIpRestricted
+                      ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]'
+                      : 'bg-rose-500'
+                  }`} />
+                  <div>
+                    <h4 className="text-sm font-semibold text-ivory">
+                      {brevoStatus?.connected ? (
+                        <>Brevo Connected &bull; {brevoStatus.companyName || brevoStatus.accountEmail}</>
+                      ) : brevoStatus?.isIpRestricted ? (
+                        <>Brevo Security: IP Authorization Required</>
+                      ) : (
+                        <>Brevo Connection Pending</>
+                      )}
+                    </h4>
+                    <p className="text-xs text-ivory/50">
+                      {brevoStatus?.connected ? (
+                        <>Plan: <strong className="text-ivory">{brevoStatus.planType}</strong> {brevoStatus.credits !== undefined ? `• Credits: ${brevoStatus.credits}` : ''}</>
+                      ) : (
+                        brevoStatus?.error || 'Checking API connectivity...'
+                      )}
+                    </p>
+                  </div>
+                </div>
 
-              {importResult && (
-                <div className="p-3 rounded bg-ink border border-charcoal-border text-xs text-ivory/80">
-                  Import result: <strong>{importResult.imported} added</strong>, {importResult.duplicates} duplicates skipped, {importResult.invalid} invalid.
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-ink border border-charcoal-border">
+                    <span className="text-ivory/50">Sender:</span>
+                    <strong className="text-ivory font-mono text-[11px]">{brevoConfig?.senderEmail || 'contact@manila-wine.com'}</strong>
+                    {brevoStatus?.verifiedSender && (
+                      <span className="text-emerald-400 ml-1 font-semibold flex items-center gap-0.5" title="Verified in Brevo with DKIM/DMARC">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* IP Restriction Warning Box */}
+              {brevoStatus?.isIpRestricted && (
+                <div className="p-4 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 space-y-2">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="font-semibold text-amber-300 text-sm">Action Needed in Brevo: Deactivate IP Restrictions</h5>
+                      <p className="text-ivory/80 mt-1 leading-relaxed">
+                        Brevo blocked the API call because it came from a new IP ({brevoStatus.clientIp || 'cloud IP'}). 
+                        Because Vercel and local networks use rotating IPs, please click below to open your Brevo settings and click 
+                        <strong className="text-amber-300"> &ldquo;Deactivate for API keys&rdquo;</strong> (or authorize the IP).
+                      </p>
+                      <div className="mt-3 flex items-center gap-3">
+                        <a
+                          href={brevoStatus.authUrl || 'https://app.brevo.com/security/authorised_ips'}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-amber-500 text-ink font-semibold hover:bg-amber-400 transition-colors"
+                        >
+                          Open Brevo Authorized IPs Settings <ExternalLink className="w-3 h-3" />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={fetchBrevoStatus}
+                          className="px-3 py-1.5 rounded bg-ink border border-amber-500/50 text-amber-200 hover:text-white transition-colors"
+                        >
+                          I Did It, Refresh Connection
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded bg-wine hover:bg-wine-light text-white text-xs font-semibold tracking-wider uppercase transition-colors"
-              >
-                Import VIP List
-              </button>
-            </form>
+              {/* Template Injection Feedback */}
+              {brevoInjectMessage && (
+                <div className={`p-3 rounded text-xs flex items-center gap-2 ${
+                  brevoInjectMessage.success ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800' : 'bg-rose-950/60 text-rose-300 border border-rose-800'
+                }`}>
+                  {brevoInjectMessage.success ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
+                  <span>{brevoInjectMessage.text}</span>
+                  {brevoInjectMessage.success && (
+                    <a
+                      href="https://app.brevo.com/templates"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="ml-auto underline text-emerald-200 hover:text-white"
+                    >
+                      View in Brevo Templates ↗
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
 
-            <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="text-sm font-semibold text-ivory">Active VIP Invitations ({invitations.length})</h4>
+            {/* Studio Workspace: 2-Column Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* LEFT COLUMN: Controls, Customizer, Test Send & Blast (7 cols) */}
+              <div className="lg:col-span-7 space-y-6">
+                
+                {/* 1. Email Content & Copy Customizer */}
+                <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-2">
+                      <FileText className="w-4 h-4" /> 1. Campaign Content & Subject
+                    </h4>
+                    <span className="text-[11px] text-ivory/40">Real-time live sync</span>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <label className="block text-ivory/70 mb-1 font-medium">Subject Line</label>
+                      <input
+                        type="text"
+                        value={brevoSubject}
+                        onChange={(e) => setBrevoSubject(e.target.value)}
+                        placeholder="Subject line seen in collector inbox"
+                        className="w-full px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-ivory"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-ivory/70 mb-1 font-medium">Preheader Snippet (Inbox preview line)</label>
+                      <input
+                        type="text"
+                        value={brevoPreviewText}
+                        onChange={(e) => setBrevoPreviewText(e.target.value)}
+                        placeholder="Short summary preview line"
+                        className="w-full px-3.5 py-2 bg-ink rounded border border-charcoal-border focus:border-gold text-ivory/80"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-ivory/70 mb-1 font-medium">Hero Headline</label>
+                        <input
+                          type="text"
+                          value={brevoHeadline}
+                          onChange={(e) => setBrevoHeadline(e.target.value)}
+                          placeholder="Exclusive Private Invitation"
+                          className="w-full px-3.5 py-2 bg-ink rounded border border-charcoal-border focus:border-gold text-ivory"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-ivory/70 mb-1 font-medium">Primary CTA Button</label>
+                        <input
+                          type="text"
+                          value={brevoCtaText}
+                          onChange={(e) => setBrevoCtaText(e.target.value)}
+                          placeholder="EXPLORE ALL 15 DESIGNS & CAST YOUR VOTE"
+                          className="w-full px-3.5 py-2 bg-ink rounded border border-charcoal-border focus:border-gold text-ivory"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Instant Test Send */}
+                <form onSubmit={handleSendBrevoTest} className="p-6 rounded-xl bg-charcoal border border-charcoal-border space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-2">
+                      <Send className="w-4 h-4" /> 2. Instant Test Send
+                    </h4>
+                    <span className="text-[11px] text-ivory/40">Verify in your personal inbox first</span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="email"
+                      value={brevoTestEmail}
+                      onChange={(e) => setBrevoTestEmail(e.target.value)}
+                      placeholder="Enter your email to receive test"
+                      required
+                      className="flex-1 px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-xs text-ivory"
+                    />
+                    <button
+                      type="submit"
+                      disabled={brevoSendingTest}
+                      className="px-5 py-2.5 rounded bg-charcoal-border hover:bg-gold/20 hover:border-gold text-gold border border-gold/40 text-xs font-semibold tracking-wider uppercase transition-colors whitespace-nowrap flex items-center justify-center gap-2"
+                    >
+                      <Send className={`w-3.5 h-3.5 ${brevoSendingTest ? 'animate-pulse' : ''}`} />
+                      {brevoSendingTest ? 'Sending Test...' : 'Send Test Email'}
+                    </button>
+                  </div>
+
+                  {brevoTestMessage && (
+                    <div className={`p-3 rounded text-xs flex items-center gap-2 ${
+                      brevoTestMessage.success ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800' : 'bg-rose-950/60 text-rose-300 border border-rose-800'
+                    }`}>
+                      {brevoTestMessage.success ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
+                      <span>{brevoTestMessage.text}</span>
+                    </div>
+                  )}
+                </form>
+
+                {/* 3. Recipient Audience & Blast Trigger */}
+                <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-2">
+                      <Users className="w-4 h-4" /> 3. VIP Collector Recipients & Blast
+                    </h4>
+                    <label className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded bg-ink border border-charcoal-border hover:border-gold text-[11px] text-gold transition-colors">
+                      <Upload className="w-3 h-3" />
+                      <span>Upload .csv / .txt</span>
+                      <input
+                        type="file"
+                        accept=".csv,.txt"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  <p className="text-xs text-ivory/60">
+                    Paste your collector emails below (separated by newlines, commas, or semicolons) or upload a CSV file. Invalid syntax and duplicates are automatically cleaned.
+                  </p>
+
+                  <textarea
+                    rows={5}
+                    value={brevoBlastEmails}
+                    onChange={(e) => setBrevoBlastEmails(e.target.value)}
+                    placeholder={"vipbuyer1@example.com\nvipbuyer2@example.com\n\"VIP Client\" <client@domain.com>"}
+                    className="w-full px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-xs font-mono text-ivory"
+                  />
+
+                  {/* Real-time Email Stats Badge */}
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className="px-2.5 py-1 rounded bg-ink border border-charcoal-border text-ivory/70">
+                      Total Tokens: <strong className="text-ivory">{parsedRecipients.total}</strong>
+                    </span>
+                    <span className="px-2.5 py-1 rounded bg-emerald-950/60 border border-emerald-800 text-emerald-300">
+                      Valid VIP Emails: <strong className="text-emerald-200">{parsedRecipients.valid.length}</strong>
+                    </span>
+                    {parsedRecipients.duplicatesCount > 0 && (
+                      <span className="px-2.5 py-1 rounded bg-amber-950/60 border border-amber-800 text-amber-300">
+                        Duplicates Removed: <strong className="text-amber-200">{parsedRecipients.duplicatesCount}</strong>
+                      </span>
+                    )}
+                    {parsedRecipients.invalid.length > 0 && (
+                      <span className="px-2.5 py-1 rounded bg-rose-950/60 border border-rose-800 text-rose-300" title={`Invalid: ${parsedRecipients.invalid.slice(0, 3).join(', ')}`}>
+                        Invalid Skipped: <strong className="text-rose-200">{parsedRecipients.invalid.length}</strong>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div>
+                      <label className="block text-ivory/70 mb-1 text-xs">Campaign Reference Name</label>
+                      <input
+                        type="text"
+                        value={brevoCampaignName}
+                        onChange={(e) => setBrevoCampaignName(e.target.value)}
+                        placeholder="Campaign name in Brevo"
+                        className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border focus:border-gold text-xs text-ivory"
+                      />
+                    </div>
+                    <div className="flex items-center pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-ivory/80">
+                        <input
+                          type="checkbox"
+                          checked={brevoCreateList}
+                          onChange={(e) => setBrevoCreateList(e.target.checked)}
+                          className="w-4 h-4 rounded border-charcoal-border text-gold focus:ring-gold bg-ink"
+                        />
+                        <span>Sync audience to Brevo Contact List</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Big Blast Trigger Button */}
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={handleLaunchBlast}
+                      disabled={brevoBlasting || parsedRecipients.valid.length === 0}
+                      className="w-full py-3.5 px-6 rounded-lg bg-gradient-to-r from-wine to-wine-light hover:from-wine-light hover:to-wine text-white font-serif tracking-wider uppercase text-sm font-semibold shadow-luxury disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    >
+                      <Play className={`w-4 h-4 text-gold ${brevoBlasting ? 'animate-spin' : ''}`} />
+                      {brevoBlasting
+                        ? 'Blasting Campaign via Brevo API...'
+                        : `Launch Email Blast to ${parsedRecipients.valid.length} Collectors`}
+                    </button>
+                  </div>
+
+                  {/* Blast Results Banner */}
+                  {brevoBlastResult && (
+                    <div className={`p-4 rounded-xl border space-y-2 text-xs ${
+                      brevoBlastResult.success
+                        ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
+                        : 'bg-rose-950/40 border-rose-700/60 text-rose-200'
+                    }`}>
+                      <div className="flex items-center justify-between font-semibold text-sm">
+                        <span>
+                          {brevoBlastResult.success ? '🎉 Campaign Blast Completed!' : '⚠️ Blast Encountered Errors'}
+                        </span>
+                        <span>
+                          {brevoBlastResult.sentCount} / {brevoBlastResult.totalRequested} Sent
+                        </span>
+                      </div>
+                      <p className="text-ivory/80">
+                        {brevoBlastResult.sentCount} emails were successfully accepted by Brevo for delivery.
+                        {brevoBlastResult.failedCount > 0 && ` ${brevoBlastResult.failedCount} failed.`}
+                      </p>
+                      {brevoBlastResult.errors && brevoBlastResult.errors.length > 0 && (
+                        <div className="pt-1">
+                          <span className="font-semibold text-rose-300">Errors:</span>
+                          <ul className="list-disc pl-4 space-y-0.5 text-rose-200 text-[11px] mt-1">
+                            {brevoBlastResult.errors.map((err: string, i: number) => (
+                              <li key={i}>{err}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* RIGHT COLUMN: Live Responsive Preview (5 cols) */}
+              <div className="lg:col-span-5 space-y-4 sticky top-24">
+                
+                {/* Preview Header & Viewport Toggle */}
+                <div className="flex items-center justify-between bg-charcoal p-3 rounded-xl border border-charcoal-border">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-gold" />
+                    <span className="text-xs font-semibold text-ivory uppercase tracking-wider">Live Preview</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="bg-ink p-0.5 rounded border border-charcoal-border flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewViewport('desktop')}
+                        className={`px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition-colors ${
+                          previewViewport === 'desktop' ? 'bg-gold/20 text-gold font-semibold' : 'text-ivory/50 hover:text-ivory'
+                        }`}
+                      >
+                        <Monitor className="w-3.5 h-3.5" /> Desktop
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewViewport('mobile')}
+                        className={`px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition-colors ${
+                          previewViewport === 'mobile' ? 'bg-gold/20 text-gold font-semibold' : 'text-ivory/50 hover:text-ivory'
+                        }`}
+                      >
+                        <Smartphone className="w-3.5 h-3.5" /> Mobile
+                      </button>
+                    </div>
+
+                    <a
+                      href={`/api/admin/brevo?format=html&subject=${encodeURIComponent(brevoSubject)}&headline=${encodeURIComponent(brevoHeadline)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1.5 rounded bg-ink border border-charcoal-border text-ivory/60 hover:text-gold transition-colors"
+                      title="Open full email preview in new tab"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Preview Frame Container */}
+                <div className="flex justify-center bg-charcoal/40 p-4 rounded-xl border border-charcoal-border">
+                  <div
+                    className={`transition-all duration-300 overflow-hidden bg-ink shadow-2xl ${
+                      previewViewport === 'mobile'
+                        ? 'w-[375px] h-[680px] rounded-[36px] border-4 border-charcoal-border'
+                        : 'w-full h-[680px] rounded-lg border border-charcoal-border'
+                    }`}
+                  >
+                    <iframe
+                      src={`/api/admin/brevo?format=html&subject=${encodeURIComponent(brevoSubject)}&headline=${encodeURIComponent(brevoHeadline)}&previewText=${encodeURIComponent(brevoPreviewText)}&ctaText=${encodeURIComponent(brevoCtaText)}`}
+                      title="Brevo Email Preview"
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                </div>
+
+                <div className="text-center text-[11px] text-ivory/40">
+                  Rendered with inline responsive styles compatible with Gmail, Apple Mail, and Outlook.
+                </div>
+              </div>
+
+            </div>
+
+            {/* Existing Database Invitations Table (Collapsed Archive) */}
+            <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h4 className="text-sm font-semibold text-ivory">Legacy Registered Invitations ({invitations.length})</h4>
+                  <p className="text-xs text-ivory/50">Historical reference codes stored in local database.</p>
+                </div>
                 <a
                   href="/api/admin/export?type=invitations"
                   className="text-xs text-gold hover:underline inline-flex items-center gap-1"
                 >
                   <Download className="w-3 h-3" />
-                  Export Invitation Status CSV
+                  Export CSV
                 </a>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="border-b border-charcoal-border text-ivory/50 uppercase">
-                    <tr>
-                      <th className="py-2">Email</th>
-                      <th className="py-2">Reference Code</th>
-                      <th className="py-2">Status</th>
-                      <th className="py-2">Sent Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-charcoal-border/50 text-ivory/80">
-                    {invitations.map((inv) => (
-                      <tr key={inv.id}>
-                        <td className="py-2.5">{inv.email_normalized}</td>
-                        <td className="py-2.5 font-mono text-gold">{inv.reference_code}</td>
-                        <td className="py-2.5">
-                          <span className="px-2 py-0.5 rounded bg-ink border border-white/10 text-[10px] uppercase">
-                            {inv.status}
-                          </span>
-                        </td>
-                        <td className="py-2.5 text-ivory/40">{formatDate(inv.sent_at)}</td>
+              {invitations.length === 0 ? (
+                <div className="py-6 text-center text-ivory/40 text-xs">
+                  No legacy database invitation codes recorded.
+                </div>
+              ) : (
+                <div className="overflow-x-auto max-h-60">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-charcoal-border text-ivory/50 uppercase sticky top-0 bg-charcoal">
+                      <tr>
+                        <th className="py-2">Email</th>
+                        <th className="py-2">Reference Code</th>
+                        <th className="py-2">Status</th>
+                        <th className="py-2">Sent Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-charcoal-border/50 text-ivory/80">
+                      {invitations.map((inv) => (
+                        <tr key={inv.id}>
+                          <td className="py-2.5">{inv.email_normalized}</td>
+                          <td className="py-2.5 font-mono text-gold">{inv.reference_code}</td>
+                          <td className="py-2.5">
+                            <span className="px-2 py-0.5 rounded bg-ink border border-white/10 text-[10px] uppercase">
+                              {inv.status}
+                            </span>
+                          </td>
+                          <td className="py-2.5 text-ivory/40">{formatDate(inv.sent_at)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
+
           </div>
         )}
 
