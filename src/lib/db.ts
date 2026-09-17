@@ -632,6 +632,20 @@ class LocalDatabase {
     }
   }
 
+  resetUserVote(campaignId: string, userId: string): boolean {
+    const beforeVotes = this.db.votes.length;
+    this.db.votes = this.db.votes.filter(v => !(v.campaign_id === campaignId && v.user_id === userId));
+    this.db.pledges = this.db.pledges.filter(p => !(p.campaign_id === campaignId && p.user_id === userId));
+    this.save();
+    return this.db.votes.length < beforeVotes;
+  }
+
+  resetUserVoteByEmail(campaignId: string, email: string): boolean {
+    const profile = this.db.profiles.find(p => p.email.toLowerCase() === email.trim().toLowerCase());
+    if (!profile) return false;
+    return this.resetUserVote(campaignId, profile.id);
+  }
+
   // --- Pledge Methods ---
   getUserPledge(campaignId: string, userId: string): Pledge | null {
     return this.db.pledges.find(p => p.campaign_id === campaignId && p.user_id === userId) || null;

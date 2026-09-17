@@ -35,6 +35,7 @@ interface CampaignContextType {
     marketing_consent?: boolean;
   }) => Promise<{ success: boolean; message?: string }>;
   withdrawPledge: () => Promise<{ success: boolean; message?: string }>;
+  resetVote: (targetEmail?: string) => Promise<{ success: boolean; message?: string }>;
   refreshData: () => Promise<void>;
   logout: () => Promise<void>;
   setCurrentUser: (user: SessionUser | null) => void;
@@ -150,6 +151,7 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
 
       setUserVote(data.vote);
       setVoteConfirmDesign(null);
+      setLightboxDesignId(null);
 
       // Trigger celebratory gold/wine confetti
       confetti({
@@ -164,6 +166,15 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
       });
 
       await refreshData();
+
+      // Smoothly redirect/scroll collector to the Optional Collector Registry section
+      setTimeout(() => {
+        const pledgeEl = document.getElementById('edition');
+        if (pledgeEl) {
+          pledgeEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 400);
+
       return { success: true, message: data.message };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to vote';
@@ -230,6 +241,25 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
     }
   }, [campaign?.id]);
 
+  const resetVote = useCallback(async (targetEmail?: string) => {
+    try {
+      const emailQuery = targetEmail ? `&email=${encodeURIComponent(targetEmail)}` : '';
+      const res = await fetch(`/api/vote?campaign_id=${campaign?.id || ''}${emailQuery}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUserVote(null);
+        setUserPledge(null);
+        await refreshData();
+        return { success: true, message: data.message };
+      }
+      return { success: false, message: data.error };
+    } catch {
+      return { success: false, message: 'Failed to reset vote' };
+    }
+  }, [campaign?.id, refreshData]);
+
   const logout = useCallback(async () => {
     await fetch('/api/auth/session', { method: 'POST' });
     setCurrentUser(null);
@@ -262,6 +292,7 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
         confirmVote,
         submitPledge,
         withdrawPledge,
+        resetVote,
         refreshData,
         logout,
         setCurrentUser,

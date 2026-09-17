@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCampaign } from '@/context/CampaignContext';
-import { Menu, X, User, ExternalLink, ShieldCheck, LogOut } from 'lucide-react';
+import { Menu, X, User, ExternalLink, ShieldCheck, LogOut, RefreshCw } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 
 export function Header() {
-  const { campaign, currentUser, setAuthModalOpen, logout } = useCampaign();
+  const { campaign, currentUser, userVote, resetVote, setAuthModalOpen, logout } = useCampaign();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
@@ -118,6 +118,21 @@ export function Header() {
                         <ShieldCheck className="w-4 h-4" />
                         Admin Dashboard
                       </Link>
+                    )}
+
+                    {userVote && (
+                      <button
+                        onClick={async () => {
+                          setUserDropdownOpen(false);
+                          if (window.confirm('Reset your vote and registered interest so you can test voting again?')) {
+                            await resetVote();
+                          }
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs text-gold/80 hover:text-gold hover:bg-ink-soft transition-colors text-left"
+                      >
+                        <RefreshCw className="w-4 h-4 text-gold" />
+                        Reset My Vote (Testing)
+                      </button>
                     )}
 
                     <button

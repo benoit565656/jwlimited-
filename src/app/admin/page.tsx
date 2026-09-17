@@ -236,6 +236,26 @@ export default function AdminPage() {
     }
   };
 
+  const handleResetVote = async (email: string) => {
+    if (!window.confirm(`Reset vote and registered priority pledge for ${email}?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/vote?campaign_id=${campaign?.id}&email=${encodeURIComponent(email)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Vote reset successfully');
+        fetchAdminData();
+      } else {
+        alert(data.error || 'Failed to reset vote');
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
   // If not logged in as Admin, show administrator sign-in gateway
   if (!isLoading && !isAdminAuthenticated) {
     return (
@@ -251,10 +271,17 @@ export default function AdminPage() {
 
           <div className="space-y-3">
             <button
-              onClick={() => handleAdminSignIn('admin@manila-wine.com')}
+              onClick={() => handleAdminSignIn('benoit5656@gmail.com')}
               className="w-full py-3 rounded bg-wine hover:bg-wine-light text-white font-semibold text-xs tracking-wider uppercase shadow-wine-glow transition-colors"
             >
-              Sign In as Administrator (Default)
+              Sign In as benoit5656@gmail.com
+            </button>
+
+            <button
+              onClick={() => handleAdminSignIn('admin@manila-wine.com')}
+              className="w-full py-2.5 rounded bg-charcoal hover:bg-ink border border-charcoal-border hover:border-gold text-ivory/80 text-xs font-medium tracking-wider uppercase transition-colors"
+            >
+              Sign In as admin@manila-wine.com
             </button>
 
             <Link
@@ -930,6 +957,7 @@ export default function AdminPage() {
                         <th className="py-2.5">Tier</th>
                         <th className="py-2.5">Status</th>
                         <th className="py-2.5">Date</th>
+                        <th className="py-2.5 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-charcoal-border/50 text-ivory/80">
@@ -967,6 +995,15 @@ export default function AdminPage() {
                           </td>
                           <td className="py-3 text-ivory/40 font-mono text-[11px]">
                             {formatDate(pledge.pledged_at || pledge.created_at)}
+                          </td>
+                          <td className="py-3 text-right">
+                            <button
+                              onClick={() => handleResetVote(pledge.user_email)}
+                              className="px-2.5 py-1 rounded bg-wine/20 hover:bg-wine text-wine-light hover:text-white border border-wine/40 text-[10px] font-semibold tracking-wider uppercase transition-colors"
+                              title="Reset this user's vote and pledge so they can vote again"
+                            >
+                              Reset Vote
+                            </button>
                           </td>
                         </tr>
                       ))}

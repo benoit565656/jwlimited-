@@ -56,6 +56,17 @@ export function verifyOTP(email: string, code: string): boolean {
   return false;
 }
 
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const norm = email.trim().toLowerCase();
+  const hardcodedAdmins = ['admin@manila-wine.com', 'benoit5656@gmail.com'];
+  const envAdmins = (process.env.ADMIN_DEFAULT_EMAIL || '')
+    .split(',')
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+  return hardcodedAdmins.includes(norm) || envAdmins.includes(norm);
+}
+
 // Helper to get current session user from cookies (Server Components / Route Handlers)
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const cookieStore = cookies();
@@ -69,11 +80,13 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   const profile = db.getProfile(payload.userId);
   if (!profile) return null;
 
+  const role = isAdminEmail(profile.email) ? 'admin' : profile.role;
+
   return {
     id: profile.id,
     email: profile.email,
     display_name: profile.display_name,
-    role: profile.role,
+    role,
     age_confirmed: Boolean(profile.age_confirmed_at),
   };
 }

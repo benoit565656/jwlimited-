@@ -82,3 +82,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const campaignId = req.nextUrl.searchParams.get('campaign_id') || 'e29d749a-14d2-4ce0-8d59-20f5efc34001';
+    const targetEmail = req.nextUrl.searchParams.get('email');
+
+    const db = getDb();
+    if (targetEmail && user.role === 'admin') {
+      db.resetUserVoteByEmail(campaignId, targetEmail);
+    } else {
+      db.resetUserVote(campaignId, user.id);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Vote and pledge reset successfully. You can now cast a new vote.',
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to reset vote';
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}

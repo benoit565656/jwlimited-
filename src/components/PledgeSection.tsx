@@ -62,16 +62,6 @@ export function PledgeSection() {
       return;
     }
 
-    if (!interestedBuying) {
-      setFeedbackMsg({ type: 'error', text: 'Please check the box confirming your interest in acquiring bottles.' });
-      return;
-    }
-
-    if (!nonbindingAck) {
-      setFeedbackMsg({ type: 'error', text: 'You must acknowledge that this is a non-binding expression of interest.' });
-      return;
-    }
-
     let prefNum: number | null = null;
     if (preferredNumber.trim()) {
       const num = parseInt(preferredNumber.trim(), 10);
@@ -90,7 +80,7 @@ export function PledgeSection() {
       preferred_number: prefNum,
       interest_tier: interestTier,
       acknowledged_nonbinding: true,
-      marketing_consent: marketingConsent,
+      marketing_consent: true,
     });
 
     if (res.success) {
@@ -124,14 +114,14 @@ export function PledgeSection() {
 
   return (
     <section id="edition" className="py-20 md:py-28 bg-ink border-b border-charcoal-border scroll-mt-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="bg-charcoal/80 border border-gold/40 rounded-2xl p-5 sm:p-8 md:p-12 shadow-luxury relative overflow-hidden">
           {/* Subtle gold luxury decorative accent */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
 
           {/* Section Header */}
-          <div className="max-w-2xl mb-8 space-y-3">
+          <div className="max-w-3xl mb-8 space-y-3">
             <span className="text-xs uppercase tracking-widest text-gold font-semibold flex items-center gap-2">
               <BookmarkCheck className="w-4 h-4 text-gold" />
               Optional Collector Registry
@@ -372,49 +362,8 @@ export function PledgeSection() {
               </div>
             )}
 
-            {/* Required and Optional Consents */}
-            <div className="space-y-3 pt-4 border-t border-charcoal-border/70">
-              <label className="flex items-start gap-3 cursor-pointer text-xs text-ivory/80">
-                <input
-                  type="checkbox"
-                  checked={interestedBuying}
-                  onChange={(e) => setInterestedBuying(e.target.checked)}
-                  required
-                  className="mt-0.5 rounded border-charcoal-border text-wine focus:ring-gold"
-                />
-                <span>
-                  <strong>I am interested in acquiring {bottleCount} {bottleCount === 1 ? 'bottle' : 'bottles'}</strong> if production proceeds. (Required)
-                </span>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer text-xs text-ivory/80">
-                <input
-                  type="checkbox"
-                  checked={nonbindingAck}
-                  onChange={(e) => setNonbindingAck(e.target.checked)}
-                  required
-                  className="mt-0.5 rounded border-charcoal-border text-wine focus:ring-gold"
-                />
-                <span>
-                  <strong>I understand this is a non-binding expression of interest</strong>, not a reservation, order, or purchase guarantee. (Required)
-                </span>
-              </label>
-
-              <label className="flex items-start gap-3 cursor-pointer text-xs text-ivory/60">
-                <input
-                  type="checkbox"
-                  checked={marketingConsent}
-                  onChange={(e) => setMarketingConsent(e.target.checked)}
-                  className="mt-0.5 rounded border-charcoal-border text-wine focus:ring-gold"
-                />
-                <span>
-                  I would also like to receive Manila Wine news, special wine offerings, and private releases. (Optional)
-                </span>
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-2">
+            {/* Submit Button & Non-binding note */}
+            <div className="pt-4 border-t border-charcoal-border/70 flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -423,6 +372,9 @@ export function PledgeSection() {
                 {isSubmitting ? 'Registering...' : hasActivePledge ? 'Update My Interest' : 'Register My Interest'}
                 <ArrowRight className="w-4 h-4" />
               </button>
+              <span className="text-[11px] text-ivory/50 font-light">
+                * Free, non-binding expression of interest. Not a purchase guarantee.
+              </span>
             </div>
 
           </form>
