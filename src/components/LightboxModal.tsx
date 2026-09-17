@@ -1,0 +1,192 @@
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { useCampaign } from '@/context/CampaignContext';
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Check, ArrowRight, Award } from 'lucide-react';
+
+export function LightboxModal() {
+  const {
+    lightboxDesignId,
+    setLightboxDesignId,
+    designs,
+    campaign,
+    userVote,
+    votingPhaseActive,
+    showCounts,
+    initiateVote,
+  } = useCampaign();
+
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  // Find index of current design
+  const currentIndex = designs.findIndex(d => d.id === lightboxDesignId);
+  const design = designs[currentIndex];
+
+  const handleClose = useCallback(() => {
+    setLightboxDesignId(null);
+    setIsZoomed(false);
+  }, [setLightboxDesignId]);
+
+  const handlePrev = useCallback(() => {
+    if (currentIndex > 0) {
+      setLightboxDesignId(designs[currentIndex - 1].id);
+      setIsZoomed(false);
+    } else {
+      setLightboxDesignId(designs[designs.length - 1].id);
+      setIsZoomed(false);
+    }
+  }, [currentIndex, designs, setLightboxDesignId]);
+
+  const handleNext = useCallback(() => {
+    if (currentIndex < designs.length - 1) {
+      setLightboxDesignId(designs[currentIndex + 1].id);
+      setIsZoomed(false);
+    } else {
+      setLightboxDesignId(designs[0].id);
+      setIsZoomed(false);
+    }
+  }, [currentIndex, designs, setLightboxDesignId]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!lightboxDesignId) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxDesignId, handleClose, handlePrev, handleNext]);
+
+  if (!lightboxDesignId || !design) return null;
+
+  const isUserSelection = userVote?.design_id === design.id;
+  const isWinner = campaign?.winning_design_id === design.id;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lightbox-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-2 sm:p-4 md:p-6 animate-in fade-in duration-200"
+    >
+      {/* Top action toolbar */}
+      <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-center text-ivory">
+        <div className="flex items-center gap-3">
+          <span className="text-xs uppercase tracking-widest text-gold font-semibold">
+            {design.code} • Concept {currentIndex + 1} of {designs.length}
+          </span>
+          {isWinner && (
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-gold text-ink font-semibold text-[11px] tracking-wider uppercase">
+              <Award className="w-3 h-3" />
+              Winning Design
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Zoom Toggle */}
+          <button
+            onClick={() => setIsZoomed(!isZoomed)}
+            aria-label={isZoomed ? 'Zoom out' : 'Zoom in'}
+            className="p-2 rounded-full bg-charcoal/80 hover:bg-charcoal text-ivory/80 hover:text-white border border-white/10 transition-colors"
+          >
+            {isZoomed ? <ZoomOut className="w-5 h-5" /> : <ZoomIn className="w-5 h-5" />}
+          </button>
+
+          {/* Close Lightbox */}
+          <button
+            onClick={handleClose}
+            aria-label="Close Lightbox"
+            className="p-2 rounded-full bg-charcoal/80 hover:bg-charcoal text-ivory/80 hover:text-white border border-white/10 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Navigation Arrows */}
+      <button
+        onClick={handlePrev}
+        aria-label="Previous Concept Artwork"
+        className="absolute left-2 sm:left-4 z-20 p-3 rounded-full bg-charcoal/70 hover:bg-charcoal text-ivory/80 hover:text-white border border-white/10 transition-all hover:scale-105"
+      >
+        <ChevronLeft className="w-6 h-6" />
+      </button>
+
+      <button
+        onClick={handleNext}
+        aria-label="Next Concept Artwork"
+        className="absolute right-2 sm:right-4 z-20 p-3 rounded-full bg-charcoal/70 hover:bg-charcoal text-ivory/80 hover:text-white border border-white/10 transition-all hover:scale-105"
+      >
+        <ChevronRight className="w-6 h-6" />
+      </button>
+
+      {/* Main Lightbox Content Area */}
+      <div className="relative w-full h-full max-w-6xl flex flex-col justify-center items-center pt-14 pb-24 overflow-y-auto">
+        <div 
+          className={`relative w-full transition-all duration-300 flex items-center justify-center ${
+            isZoomed ? 'max-w-none h-[110vh] cursor-zoom-out' : 'max-h-[65vh] aspect-[3/2] cursor-zoom-in'
+          }`}
+          onClick={() => setIsZoomed(!isZoomed)}
+        >
+          <Image
+            src={design.full_image_path}
+            alt={design.alt_text}
+            fill
+            sizes="100vw"
+            className="object-contain p-2"
+            priority
+          />
+        </div>
+
+        {/* Bottom Details Drawer */}
+        <div className="w-full max-w-2xl bg-charcoal/90 border border-gold/30 rounded-lg p-5 mt-4 text-center shadow-luxury">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-left">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 id="lightbox-title" className="font-serif text-lg sm:text-xl text-ivory">
+                  {design.title}
+                </h3>
+                {showCounts && (
+                  <span className="text-xs px-2 py-0.5 rounded bg-ink text-gold border border-gold/30 font-medium">
+                    {design.vote_count ?? 0} votes
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-ivory/70 max-w-md line-clamp-2">
+                {design.description}
+              </p>
+            </div>
+
+            <div className="flex-shrink-0">
+              {votingPhaseActive && (
+                isUserSelection ? (
+                  <div className="px-5 py-2.5 rounded bg-wine/30 text-gold border border-gold/40 text-xs font-semibold tracking-wider uppercase inline-flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-gold" />
+                    Your Vote
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      initiateVote(design.id);
+                    }}
+                    className="px-5 py-2.5 rounded bg-wine hover:bg-wine-light text-white text-xs font-semibold tracking-wider uppercase shadow-wine-glow inline-flex items-center gap-2 transition-colors"
+                  >
+                    {userVote ? 'Move Vote Here' : 'Vote for this Design'}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
