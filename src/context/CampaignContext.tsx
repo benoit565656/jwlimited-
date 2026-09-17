@@ -110,6 +110,27 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
     setVoteConfirmDesign(design);
   }, [currentUser, designs]);
 
+  // Check for post-OAuth redirect and resume pending vote
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const authErr = urlParams.get('auth_error');
+    if (authErr) {
+      setAuthModalOpen(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (urlParams.get('auth') === 'success') {
+      refreshData().then(() => {
+        const pendingDesignId = sessionStorage.getItem('mw_pending_vote_design');
+        if (pendingDesignId) {
+          sessionStorage.removeItem('mw_pending_vote_design');
+          initiateVote(pendingDesignId);
+        }
+      });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [refreshData, initiateVote]);
+
   // Execute vote submission
   const confirmVote = useCallback(async (designId: string) => {
     try {

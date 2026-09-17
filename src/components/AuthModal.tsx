@@ -47,32 +47,24 @@ export function AuthModal() {
     setErrorMsg(null);
 
     try {
-      // Simulate fast OAuth sign in with mock profile or direct integration
-      const simulatedEmail = provider === 'google' ? 'collector.ph@gmail.com' : 'buyer.ph@facebook.com';
-      const simulatedName = provider === 'google' ? 'Manila Collector' : 'JW Enthusiast';
+      if (pendingAction?.type === 'vote' && pendingAction.designId && typeof window !== 'undefined') {
+        sessionStorage.setItem('mw_pending_vote_design', pendingAction.designId);
+      }
 
-      const res = await fetch('/api/auth/oauth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider,
-          email: simulatedEmail,
-          display_name: simulatedName,
-          age_confirmed: true,
-        }),
-      });
-
+      const res = await fetch(`/api/auth/login?provider=${provider}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'OAuth authentication failed');
 
-      setCurrentUser(data.user);
-      trackEvent('auth_completed', { provider });
-      await refreshData();
-      handleClose();
+      if (!res.ok || !data.configured) {
+        const providerName = provider === 'google' ? 'Google' : 'Facebook';
+        setErrorMsg(
+          data.error ||
+          `${providerName} Sign-In is awaiting API keys. Please enter your email address below to receive an instant verification code.`
+        );
+        return;
+      }
 
-      // Resume pending vote if any
-      if (pendingAction?.type === 'vote' && pendingAction.designId) {
-        initiateVote(pendingAction.designId);
+      if (data.url) {
+        window.location.href = data.url;
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign-in failed';
