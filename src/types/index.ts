@@ -104,6 +104,7 @@ export interface Pledge {
   user_id: string;
   design_id: string | null;
   status: 'active' | 'withdrawn' | 'converted';
+  bottle_count: number;
   preferred_number: number | null;
   interest_tier: InterestTier;
   nonbinding_acknowledged_at: string;

@@ -22,10 +22,14 @@ export async function GET(req: NextRequest) {
 
     const analytics = db.getCampaignAnalytics(campaign.id);
     const auditLogs = db.getAuditLogs(50);
+    const recentPledges = db.getPledgesExport(campaign.id);
+    const recentVotes = db.getVotesExport(campaign.id);
 
     return NextResponse.json({
       analytics,
       auditLogs,
+      recentPledges,
+      recentVotes,
       campaign,
     });
   } catch (err: unknown) {

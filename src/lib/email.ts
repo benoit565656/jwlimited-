@@ -86,7 +86,7 @@ export const emailService = {
   },
 
   // Template 2: Pledge / Priority-List Confirmation
-  async sendPledgeConfirmation(email: string, preferredNumber: number | null, tier: string) {
+  async sendPledgeConfirmation(email: string, preferredNumber: number | null, tier: string, bottleCount: number = 1) {
     const tierLabels: Record<string, string> = {
       any_available: 'Any Available Number',
       specific_standard: `Specific Number (${preferredNumber ? '#' + preferredNumber : 'Unspecified'})`,
@@ -103,6 +103,7 @@ export const emailService = {
           <h1 style="font-size: 22px; color: #171717; margin-bottom: 16px;">You are on the Priority List</h1>
           <p>We have successfully registered your non-binding interest for the proposed 100-bottle Philippines Limited Edition.</p>
           <div style="background-color: #F7F3EB; border: 1px solid #DFBF77; padding: 20px; margin: 24px 0; border-radius: 4px;">
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Requested Quantity:</strong> ${bottleCount} ${bottleCount === 1 ? 'Bottle' : 'Bottles'}</p>
             <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Preference Tier:</strong> ${tierLabels[tier] || tier}</p>
             ${preferredNumber ? `<p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Preferred Bottle Number:</strong> #${preferredNumber}</p>` : ''}
             <p style="margin: 8px 0 0 0; font-size: 12px; color: #666; font-style: italic;">

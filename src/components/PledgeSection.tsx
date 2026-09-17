@@ -19,6 +19,7 @@ export function PledgeSection() {
   } = useCampaign();
 
   const [interestedBuying, setInterestedBuying] = useState(true);
+  const [bottleCount, setBottleCount] = useState<number>(1);
   const [preferredNumber, setPreferredNumber] = useState<string>('');
   const [interestTier, setInterestTier] = useState<InterestTier>('any_available');
   const [nonbindingAck, setNonbindingAck] = useState(false);
@@ -31,6 +32,7 @@ export function PledgeSection() {
   // Sync existing pledge values into form if user has an active pledge
   useEffect(() => {
     if (userPledge && userPledge.status === 'active') {
+      setBottleCount(userPledge.bottle_count || 1);
       setPreferredNumber(userPledge.preferred_number ? String(userPledge.preferred_number) : '');
       setInterestTier(userPledge.interest_tier);
       setNonbindingAck(true);
@@ -61,7 +63,7 @@ export function PledgeSection() {
     }
 
     if (!interestedBuying) {
-      setFeedbackMsg({ type: 'error', text: 'Please check the box confirming your interest in buying one bottle.' });
+      setFeedbackMsg({ type: 'error', text: 'Please check the box confirming your interest in acquiring bottles.' });
       return;
     }
 
@@ -84,6 +86,7 @@ export function PledgeSection() {
     setFeedbackMsg(null);
 
     const res = await submitPledge({
+      bottle_count: bottleCount,
       preferred_number: prefNum,
       interest_tier: interestTier,
       acknowledged_nonbinding: true,
@@ -150,6 +153,7 @@ export function PledgeSection() {
                 <div>
                   <h4 className="text-sm font-semibold text-gold">You are on the Priority Collector List</h4>
                   <p className="text-xs text-ivory/70">
+                    Quantity: <strong className="text-gold">{userPledge.bottle_count || 1} {(userPledge.bottle_count || 1) === 1 ? 'bottle' : 'bottles'}</strong> • 
                     Preference: {userPledge.preferred_number ? `Bottle #${userPledge.preferred_number}` : 'Any Available'} • 
                     Linked to your vote: <strong>{userVotedDesign?.code || 'None selected yet'}</strong>
                   </p>
@@ -229,6 +233,71 @@ export function PledgeSection() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Bottle Quantity Selection */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs uppercase tracking-wider text-ivory/60">
+                  Desired Bottle Quantity
+                </label>
+                <span className="text-xs font-semibold text-gold">
+                  {bottleCount} {bottleCount === 1 ? 'Bottle' : 'Bottles'} requested
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {[1, 2, 3, 5, 6, 10].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setBottleCount(num)}
+                    className={`px-3.5 py-2 rounded text-xs font-semibold tracking-wider transition-all duration-150 border ${
+                      bottleCount === num
+                        ? 'bg-wine text-white border-wine-light shadow-wine-glow'
+                        : 'bg-ink/50 text-ivory/80 border-charcoal-border hover:border-gold/50 hover:text-white'
+                    }`}
+                  >
+                    {num} {num === 1 ? 'Bottle' : 'Bottles'}
+                  </button>
+                ))}
+
+                {/* Custom Quantity Stepper */}
+                <div className="flex items-center rounded border border-charcoal-border bg-ink/60 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setBottleCount(prev => Math.max(1, prev - 1))}
+                    className="px-3 py-1.5 text-ivory/70 hover:text-gold hover:bg-ink transition-colors font-bold text-sm"
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={bottleCount}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setBottleCount(Math.max(1, Math.min(100, val)));
+                      }
+                    }}
+                    className="w-12 text-center py-1 bg-transparent text-xs font-semibold text-gold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    aria-label="Custom bottle quantity"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setBottleCount(prev => Math.min(100, prev + 1))}
+                    className="px-3 py-1.5 text-ivory/70 hover:text-gold hover:bg-ink transition-colors font-bold text-sm"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <span className="text-[11px] text-ivory/45 mt-1.5 block">
+                Whether requesting 1 bottle for your private cellar or multiple bottles (e.g. 5 bottles for gifting or collector suites), indicate your desired allocation.
+              </span>
             </div>
 
             {/* Interest Tier Selection */}
@@ -314,7 +383,7 @@ export function PledgeSection() {
                   className="mt-0.5 rounded border-charcoal-border text-wine focus:ring-gold"
                 />
                 <span>
-                  <strong>I am interested in buying one bottle</strong> if production proceeds. (Required)
+                  <strong>I am interested in acquiring {bottleCount} {bottleCount === 1 ? 'bottle' : 'bottles'}</strong> if production proceeds. (Required)
                 </span>
               </label>
 

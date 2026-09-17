@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const PledgeSchema = z.object({
   campaign_id: z.string().uuid(),
+  bottle_count: z.number().int().min(1).max(100).default(1),
   preferred_number: z.number().int().min(1).max(100).nullable().optional(),
   interest_tier: z.enum(['any_available', 'specific_standard', 'premium_collector']),
   acknowledged_nonbinding: z.literal(true, {
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Validation failed', details: parsed.error.format() }, { status: 400 });
     }
 
-    const { campaign_id, preferred_number, interest_tier, marketing_consent } = parsed.data;
+    const { campaign_id, bottle_count, preferred_number, interest_tier, marketing_consent } = parsed.data;
     const db = getDb();
 
     const campaign = db.getCampaignById(campaign_id);
@@ -38,13 +39,14 @@ export async function POST(req: NextRequest) {
     }
 
     const pledge = db.createOrUpdatePledge(campaign_id, user.id, {
+      bottle_count: bottle_count ?? 1,
       preferred_number: preferred_number ?? null,
       interest_tier,
       marketing_consent: Boolean(marketing_consent),
     });
 
     // Send pledge confirmation email in background
-    emailService.sendPledgeConfirmation(user.email, pledge.preferred_number, pledge.interest_tier).catch(err => {
+    emailService.sendPledgeConfirmation(user.email, pledge.preferred_number, pledge.interest_tier, pledge.bottle_count).catch(err => {
       console.error('Pledge confirmation email error:', err);
     });
 

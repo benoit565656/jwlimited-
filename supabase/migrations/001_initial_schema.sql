@@ -99,6 +99,7 @@ create table if not exists public.pledges (
   user_id uuid not null references public.profiles(id) on delete cascade,
   design_id uuid references public.designs(id) on delete set null,
   status text not null default 'active' check (status in ('active', 'withdrawn', 'converted')),
+  bottle_count int not null default 1 check (bottle_count >= 1 and bottle_count <= 100),
   preferred_number int check (preferred_number is null or (preferred_number >= 1 and preferred_number <= 100)),
   interest_tier text not null default 'any_available' check (interest_tier in ('any_available', 'specific_standard', 'premium_collector')),
   nonbinding_acknowledged_at timestamptz not null default now(),

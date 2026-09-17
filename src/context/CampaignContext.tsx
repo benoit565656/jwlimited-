@@ -28,6 +28,7 @@ interface CampaignContextType {
   initiateVote: (designId: string) => void;
   confirmVote: (designId: string) => Promise<{ success: boolean; message?: string }>;
   submitPledge: (data: {
+    bottle_count?: number;
     preferred_number?: number | null;
     interest_tier: InterestTier;
     acknowledged_nonbinding: true;
@@ -151,6 +152,7 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
 
   // Register or update pledge
   const submitPledge = useCallback(async (pledgeData: {
+    bottle_count?: number;
     preferred_number?: number | null;
     interest_tier: InterestTier;
     acknowledged_nonbinding: true;

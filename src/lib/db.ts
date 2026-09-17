@@ -625,6 +625,7 @@ class LocalDatabase {
     campaignId: string,
     userId: string,
     data: {
+      bottle_count?: number;
       preferred_number?: number | null;
       interest_tier: InterestTier;
       marketing_consent?: boolean;
@@ -632,6 +633,8 @@ class LocalDatabase {
   ): Pledge {
     const campaign = this.getCampaignById(campaignId);
     if (!campaign) throw new Error('Campaign not found');
+
+    const count = data.bottle_count !== undefined ? Math.max(1, Math.min(100, Math.floor(data.bottle_count))) : 1;
 
     if (data.preferred_number !== undefined && data.preferred_number !== null) {
       if (data.preferred_number < 1 || data.preferred_number > 100) {
@@ -647,6 +650,7 @@ class LocalDatabase {
 
     if (existingIndex >= 0) {
       const pledge = this.db.pledges[existingIndex];
+      pledge.bottle_count = data.bottle_count !== undefined ? count : (pledge.bottle_count || 1);
       pledge.preferred_number = data.preferred_number ?? pledge.preferred_number;
       pledge.interest_tier = data.interest_tier;
       pledge.design_id = designId;
@@ -666,6 +670,7 @@ class LocalDatabase {
         user_id: userId,
         design_id: designId,
         status: 'active',
+        bottle_count: count,
         preferred_number: data.preferred_number ?? null,
         interest_tier: data.interest_tier,
         nonbinding_acknowledged_at: now,
@@ -815,6 +820,7 @@ class LocalDatabase {
 
     const totalVoters = votes.length;
     const totalPledges = pledges.length;
+    const totalBottlesPledged = pledges.reduce((sum, p) => sum + (p.bottle_count || 1), 0);
     const conversionRate = totalVoters > 0 ? (totalPledges / totalVoters) * 100 : 0;
 
     // Preferred numbers map
@@ -849,6 +855,7 @@ class LocalDatabase {
     return {
       totalVoters,
       totalPledges,
+      totalBottlesPledged,
       conversionRate: Math.round(conversionRate * 10) / 10,
       designs,
       preferredNumbers,
@@ -871,6 +878,7 @@ class LocalDatabase {
         design_code: design?.code || 'unknown',
         design_title: design?.title || 'unknown',
         has_pledge: Boolean(pledge),
+        pledged_bottles: pledge ? (pledge.bottle_count || 1) : 0,
         pledged_number: pledge?.preferred_number || '',
         pledge_tier: pledge?.interest_tier || '',
         utm_source: v.utm_source || '',
@@ -891,6 +899,7 @@ class LocalDatabase {
         pledge_id: p.id,
         user_email: profile?.email || 'unknown',
         status: p.status,
+        bottle_count: p.bottle_count || 1,
         preferred_number: p.preferred_number || '',
         interest_tier: p.interest_tier,
         associated_design_code: design?.code || '',

@@ -40,6 +40,8 @@ export default function AdminPage() {
   const [analytics, setAnalytics] = useState<any>(null);
   const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
   const [invitations, setInvitations] = useState<any[]>([]);
+  const [pledgesList, setPledgesList] = useState<any[]>([]);
+  const [votesList, setVotesList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean | null>(null);
 
@@ -84,6 +86,8 @@ export default function AdminPage() {
       const analyticsData = await analyticsRes.json();
       setAnalytics(analyticsData.analytics);
       setAuditLogs(analyticsData.auditLogs);
+      setPledgesList(analyticsData.recentPledges || []);
+      setVotesList(analyticsData.recentVotes || []);
 
       // 5. Fetch invitations
       const invRes = await fetch(`/api/admin/invitations?campaign_id=${settingsData.campaign.id}`);
@@ -371,29 +375,35 @@ export default function AdminPage() {
         {activeTab === 'overview' && analytics && (
           <div className="space-y-8">
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="p-5 rounded-xl bg-charcoal border border-charcoal-border">
                 <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Total Verified Voters</span>
                 <span className="font-serif text-3xl text-gold font-normal">{analytics.totalVoters}</span>
                 <span className="text-[11px] text-ivory/40 block mt-1">Unique single-vote collectors</span>
               </div>
 
-              <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border">
-                <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Total Pledges</span>
+              <div className="p-5 rounded-xl bg-charcoal border border-charcoal-border">
+                <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Pledging Collectors</span>
                 <span className="font-serif text-3xl text-wine-light font-normal">{analytics.totalPledges}</span>
-                <span className="text-[11px] text-ivory/40 block mt-1">Non-binding buyer expressions</span>
+                <span className="text-[11px] text-ivory/40 block mt-1">Registered expressions</span>
               </div>
 
-              <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border">
-                <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Pledge Conversion Rate</span>
+              <div className="p-5 rounded-xl bg-charcoal border border-gold/40 shadow-luxury">
+                <span className="text-xs uppercase tracking-wider text-gold font-semibold block mb-1">Total Bottles Pledged</span>
+                <span className="font-serif text-3xl text-gold font-medium">{analytics.totalBottlesPledged ?? analytics.totalPledges}</span>
+                <span className="text-[11px] text-gold/60 block mt-1">Expressed bottle volume</span>
+              </div>
+
+              <div className="p-5 rounded-xl bg-charcoal border border-charcoal-border">
+                <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Pledge Conversion</span>
                 <span className="font-serif text-3xl text-ivory font-normal">{analytics.conversionRate}%</span>
                 <span className="text-[11px] text-ivory/40 block mt-1">Pledges ÷ Voters</span>
               </div>
 
-              <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border">
-                <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Planned Quantity</span>
+              <div className="p-5 rounded-xl bg-charcoal border border-charcoal-border">
+                <span className="text-xs uppercase tracking-wider text-ivory/50 block mb-1">Planned Production</span>
                 <span className="font-serif text-3xl text-ivory font-normal">{campaign?.planned_quantity || 100}</span>
-                <span className="text-[11px] text-ivory/40 block mt-1">Individually numbered bottles</span>
+                <span className="text-[11px] text-ivory/40 block mt-1">Numbered bottles</span>
               </div>
             </div>
 
@@ -852,9 +862,9 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="font-serif text-xl text-ivory">Voters & Pledges Export</h3>
+                <h3 className="font-serif text-xl text-ivory">Voters & Pledges Registry</h3>
                 <p className="text-xs text-ivory/60">
-                  Export complete records of verified voter selections, expressions of interest, and consent timestamps.
+                  Real-time record of all verified collector expressions, bottle volume requested, and CSV exports.
                 </p>
               </div>
 
@@ -877,12 +887,100 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="p-8 rounded-xl bg-charcoal border border-charcoal-border text-center space-y-3">
-              <Users className="w-10 h-10 text-gold mx-auto" />
-              <h4 className="font-serif text-lg text-ivory">Export Clean Data for Manila Wine CRM</h4>
+            {/* Quick Metrics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-charcoal border border-charcoal-border">
+                <span className="text-xs text-ivory/50 block">Pledging Collectors</span>
+                <span className="text-2xl font-serif text-gold font-medium">{pledgesList.length}</span>
+              </div>
+              <div className="p-4 rounded-lg bg-charcoal border border-gold/40 shadow-luxury">
+                <span className="text-xs text-gold font-semibold block">Total Bottles Requested</span>
+                <span className="text-2xl font-serif text-gold font-bold">
+                  {pledgesList.reduce((sum: number, p: any) => sum + (Number(p.bottle_count) || 1), 0)}
+                </span>
+              </div>
+              <div className="p-4 rounded-lg bg-charcoal border border-charcoal-border">
+                <span className="text-xs text-ivory/50 block">Verified Voters</span>
+                <span className="text-2xl font-serif text-ivory font-medium">{votesList.length}</span>
+              </div>
+            </div>
+
+            {/* Live Pledges Table */}
+            <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h4 className="text-sm font-semibold text-ivory">Registered Collector Pledges ({pledgesList.length})</h4>
+                  <p className="text-xs text-ivory/50">Details include quantity requested per buyer, allocation preferences, and status.</p>
+                </div>
+              </div>
+
+              {pledgesList.length === 0 ? (
+                <div className="py-12 text-center text-ivory/40 text-xs">
+                  No collector pledges registered yet. They will appear here immediately upon submission.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-charcoal-border text-ivory/50 uppercase">
+                      <tr>
+                        <th className="py-2.5">Collector</th>
+                        <th className="py-2.5">Quantity Requested</th>
+                        <th className="py-2.5">Associated Concept</th>
+                        <th className="py-2.5">Preferred Number</th>
+                        <th className="py-2.5">Tier</th>
+                        <th className="py-2.5">Status</th>
+                        <th className="py-2.5">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-charcoal-border/50 text-ivory/80">
+                      {pledgesList.map((pledge: any) => (
+                        <tr key={pledge.pledge_id || pledge.id} className="hover:bg-ink-soft/40 transition-colors">
+                          <td className="py-3 font-medium text-ivory">{pledge.user_email}</td>
+                          <td className="py-3">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-wine/30 text-gold border border-gold/30 font-bold text-xs">
+                              {pledge.bottle_count || 1} { (pledge.bottle_count || 1) === 1 ? 'Bottle' : 'Bottles' }
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            {pledge.associated_design_code ? (
+                              <span className="text-gold font-medium">{pledge.associated_design_code}</span>
+                            ) : (
+                              <span className="text-ivory/40 italic">None</span>
+                            )}
+                          </td>
+                          <td className="py-3 font-mono">
+                            {pledge.preferred_number ? `#${pledge.preferred_number}` : <span className="text-ivory/40">Any</span>}
+                          </td>
+                          <td className="py-3">
+                            <span className="text-[11px] text-ivory/70 capitalize">
+                              {(pledge.interest_tier || '').replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="py-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-semibold tracking-wider ${
+                              pledge.status === 'active' 
+                                ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/40' 
+                                : 'bg-charcoal text-ivory/40 border border-white/10'
+                            }`}>
+                              {pledge.status}
+                            </span>
+                          </td>
+                          <td className="py-3 text-ivory/40 font-mono text-[11px]">
+                            {formatDate(pledge.pledged_at || pledge.created_at)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border text-center space-y-2">
+              <Users className="w-8 h-8 text-gold mx-auto" />
+              <h4 className="font-serif text-base text-ivory">Direct CRM Integration</h4>
               <p className="text-xs text-ivory/70 max-w-lg mx-auto">
-                CSV files are formatted to import directly into Manila Wine&apos;s customer relationship systems or email platform. 
-                Data includes normalized emails, selected designs, preferred bottle numbers (1-100), and verified consent timestamps.
+                All buyer emails, bottle counts (e.g. 5 bottles), preferred numbering, and consent timestamps can be exported above at any time for direct import into Manila Wine sales channels.
               </p>
             </div>
           </div>

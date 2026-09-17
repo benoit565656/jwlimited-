@@ -136,4 +136,23 @@ describe('Manila Wine Collector Choice Voting & Pledge Logic', () => {
     const pledgesCsv = db.getPledgesExport(campaign.id);
     expect(Array.isArray(pledgesCsv)).toBe(true);
   });
+
+  it('8. Supports multi-bottle pledging (e.g. 5 bottles) and tracks total volume in admin analytics', () => {
+    const userId = `test-user-multibottle-${Date.now()}`;
+    const pledge = db.createOrUpdatePledge(campaign.id, userId, {
+      bottle_count: 5,
+      interest_tier: 'any_available',
+      marketing_consent: true,
+    });
+
+    expect(pledge.bottle_count).toBe(5);
+    expect(pledge.status).toBe('active');
+
+    const analytics = db.getCampaignAnalytics(campaign.id);
+    expect(analytics.totalBottlesPledged).toBeGreaterThanOrEqual(5);
+
+    const pledgesExport = db.getPledgesExport(campaign.id);
+    const myPledgeExport = pledgesExport.find(p => p.pledge_id === pledge.id);
+    expect(myPledgeExport?.bottle_count).toBe(5);
+  });
 });
