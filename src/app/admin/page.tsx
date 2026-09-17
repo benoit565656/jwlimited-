@@ -75,6 +75,8 @@ export default function AdminPage() {
   const [brevoStatus, setBrevoStatus] = useState<any>(null);
   const [brevoConfig, setBrevoConfig] = useState<any>(null);
   const [isCheckingBrevo, setIsCheckingBrevo] = useState(false);
+  const [brevoApiKey, setBrevoApiKey] = useState('');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [brevoSubject, setBrevoSubject] = useState('Exclusive Invitation: Shape the 100-Bottle Johnnie Walker Philippines Edition');
   const [brevoHeadline, setBrevoHeadline] = useState('Exclusive Private Invitation');
   const [brevoPreviewText, setBrevoPreviewText] = useState('Cast your decisive vote for the official 100-bottle Philippines Edition and reserve your numbered bottle.');
@@ -292,10 +294,16 @@ export default function AdminPage() {
     }
   };
 
-  const fetchBrevoStatus = useCallback(async () => {
+  const fetchBrevoStatus = useCallback(async (customKey?: string) => {
     setIsCheckingBrevo(true);
     try {
-      const res = await fetch('/api/admin/brevo');
+      const storedKey = typeof window !== 'undefined' ? (localStorage.getItem('mw_brevo_api_key') || '') : '';
+      const keyToUse = customKey !== undefined ? customKey : (brevoApiKey || storedKey);
+      if (keyToUse && !brevoApiKey) {
+        setBrevoApiKey(keyToUse);
+      }
+      const queryParam = keyToUse ? `?apiKey=${encodeURIComponent(keyToUse)}` : '';
+      const res = await fetch(`/api/admin/brevo${queryParam}`);
       const data = await res.json();
       if (res.ok) {
         setBrevoStatus(data.status);
@@ -306,7 +314,7 @@ export default function AdminPage() {
     } finally {
       setIsCheckingBrevo(false);
     }
-  }, []);
+  }, [brevoApiKey]);
 
   useEffect(() => {
     if (activeTab === 'invitations') {
@@ -377,6 +385,7 @@ export default function AdminPage() {
           action: 'send-test',
           toEmail: brevoTestEmail.trim(),
           subject: `[TEST PREVIEW] ${brevoSubject}`,
+          apiKey: brevoApiKey || undefined,
         }),
       });
       const data = await res.json();
@@ -409,6 +418,7 @@ export default function AdminPage() {
           action: 'inject-template',
           subject: brevoSubject,
           templateName: 'Manila Wine - JW Collector\'s Choice VIP Invitation',
+          apiKey: brevoApiKey || undefined,
         }),
       });
       const data = await res.json();
@@ -459,6 +469,7 @@ export default function AdminPage() {
           subject: brevoSubject,
           campaignName: brevoCampaignName,
           createBrevoList: brevoCreateList,
+          apiKey: brevoApiKey || undefined,
         }),
       });
       const data = await res.json();
@@ -1330,7 +1341,7 @@ export default function AdminPage() {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={fetchBrevoStatus}
+                  onClick={() => fetchBrevoStatus()}
                   disabled={isCheckingBrevo}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded bg-ink border border-charcoal-border hover:border-gold/60 text-xs text-ivory/80 hover:text-white transition-colors"
                 >
@@ -1394,6 +1405,49 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* API Key Configuration Row */}
+              <div className="pt-2 border-t border-charcoal-border/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-ivory/50">Brevo API Key:</span>
+                  <span className="font-mono text-ivory/90 text-[11px] bg-ink px-2 py-0.5 rounded border border-charcoal-border">
+                    {brevoConfig?.maskedKey || (brevoApiKey ? `${brevoApiKey.slice(0, 12)}...${brevoApiKey.slice(-6)}` : 'Not Set')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+                    className="text-gold hover:underline text-[11px] ml-1 font-semibold"
+                  >
+                    {showApiKeyInput ? 'Close' : 'Configure / Change Key'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Editable API Key Input */}
+              {showApiKeyInput && (
+                <div className="p-3 rounded-lg bg-ink border border-gold/40 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 text-xs animate-in fade-in duration-150">
+                  <input
+                    type="text"
+                    value={brevoApiKey}
+                    onChange={(e) => setBrevoApiKey(e.target.value)}
+                    placeholder="Paste Brevo API key here..."
+                    className="flex-1 px-3 py-1.5 bg-charcoal rounded border border-charcoal-border focus:border-gold text-ivory text-xs font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('mw_brevo_api_key', brevoApiKey.trim());
+                      }
+                      setShowApiKeyInput(false);
+                      fetchBrevoStatus(brevoApiKey.trim());
+                    }}
+                    className="px-4 py-1.5 rounded bg-gold text-ink font-semibold hover:bg-gold-light transition-colors whitespace-nowrap"
+                  >
+                    Save & Test Key
+                  </button>
+                </div>
+              )}
+
               {/* IP Restriction Warning Box */}
               {brevoStatus?.isIpRestricted && (
                 <div className="p-4 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 space-y-2">
@@ -1417,7 +1471,7 @@ export default function AdminPage() {
                         </a>
                         <button
                           type="button"
-                          onClick={fetchBrevoStatus}
+                          onClick={() => fetchBrevoStatus()}
                           className="px-3 py-1.5 rounded bg-ink border border-amber-500/50 text-amber-200 hover:text-white transition-colors"
                         >
                           I Did It, Refresh Connection
