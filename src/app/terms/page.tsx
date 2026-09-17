@@ -41,7 +41,7 @@ export default function TermsPage() {
             <h2 className="font-serif text-xl text-ivory mb-2 font-normal">1. Purpose & Scope of Campaign</h2>
             <p>
               The Manila Wine Collector&apos;s Choice campaign is a community-driven market validation initiative. 
-              Its purpose is to invite registered collectors to evaluate 11 concept artworks and vote on a proposed 
+              Its purpose is to invite registered collectors to evaluate limited edition concept artworks and vote on a proposed 
               100-bottle Philippines-inspired Johnnie Walker Blue Label limited edition.
             </p>
             <p>

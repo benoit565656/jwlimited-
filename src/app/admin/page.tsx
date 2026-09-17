@@ -708,7 +708,7 @@ export default function AdminPage() {
               <div>
                 <h3 className="font-serif text-xl text-ivory">Concept Design Management</h3>
                 <p className="text-xs text-ivory/60">
-                  Manage all 11 bottle artworks, rename, update descriptions, reorder, or designate the winner.
+                  Manage all campaign bottle artworks, rename, update descriptions, reorder, or designate the winner.
                 </p>
               </div>
             </div>

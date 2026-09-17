@@ -46,11 +46,29 @@ export function Hero() {
                       designs.find(d => d.code === 'Concept 11') || 
                       designs[0];
 
+  const totalDesigns = designs.length || 14;
+
   return (
     <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-charcoal-border bg-gradient-to-b from-ink via-ink-deep to-ink">
       {/* Subtle ambient lighting effect */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-wine/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gold/5 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Atmospheric subtle background design artwork */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
+        <div className="relative w-full h-full">
+          <Image
+            src={heroConcept?.full_image_path || '/concepts/full/concept-11.webp'}
+            alt=""
+            fill
+            priority
+            className="object-cover object-center opacity-[0.07] scale-105 filter blur-[0.5px] mix-blend-screen"
+          />
+          {/* Subtle multi-layer gradient mask ensuring copy has 100% pristine contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/90 via-ink/60 to-ink" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink via-transparent to-ink/90 opacity-90" />
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -70,7 +88,7 @@ export function Hero() {
 
             <p className="text-base sm:text-lg text-ivory/80 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
               Help choose the artwork for a proposed Johnnie Walker Blue Label edition celebrating the Philippines. 
-              Review the 11 concept artworks and vote for the design you would be proud to collect, display, or give.
+              Review the {totalDesigns} concept artworks and vote for the design you would be proud to collect, display, or give.
             </p>
 
             {/* Campaign Key Highlights */}
@@ -80,7 +98,7 @@ export function Hero() {
                 <span className="text-[11px] uppercase tracking-wider text-ivory/50">Numbered Bottles</span>
               </div>
               <div className="text-center lg:text-left">
-                <span className="block text-xl sm:text-2xl font-serif text-gold font-medium">11</span>
+                <span className="block text-xl sm:text-2xl font-serif text-gold font-medium">{totalDesigns}</span>
                 <span className="text-[11px] uppercase tracking-wider text-ivory/50">Bottle Concepts</span>
               </div>
               <div className="text-center lg:text-left">
@@ -153,7 +171,7 @@ export function Hero() {
                       href="#designs"
                       className="px-3 py-1 rounded bg-charcoal-muted hover:bg-wine text-ivory text-[11px] font-medium tracking-wider uppercase border border-white/10 hover:border-wine transition-colors"
                     >
-                      View All 11
+                      View All {totalDesigns}
                     </a>
                   </div>
                 </div>

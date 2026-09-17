@@ -123,7 +123,7 @@ export function PledgeSection() {
     <section id="edition" className="py-20 md:py-28 bg-ink border-b border-charcoal-border scroll-mt-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="bg-charcoal/80 border border-gold/40 rounded-2xl p-8 sm:p-12 shadow-luxury relative overflow-hidden">
+        <div className="bg-charcoal/80 border border-gold/40 rounded-2xl p-5 sm:p-8 md:p-12 shadow-luxury relative overflow-hidden">
           {/* Subtle gold luxury decorative accent */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
 

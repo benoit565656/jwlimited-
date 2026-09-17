@@ -50,7 +50,7 @@ export function Header() {
           {/* Brand Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-gold rounded p-1">
-              <div className="relative h-10 w-44 sm:w-52">
+              <div className="relative h-8 sm:h-10 w-36 sm:w-48 md:w-52">
                 <Image
                   src="/brand/logo.webp"
                   alt="Manila Wine"
@@ -152,21 +152,21 @@ export function Header() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center space-x-3">
+          <div className="flex md:hidden items-center space-x-2 sm:space-x-3">
             {!currentUser && (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="px-3 py-1.5 rounded text-[11px] font-semibold tracking-wider uppercase border border-gold/60 text-gold"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase border border-gold/60 text-gold whitespace-nowrap"
               >
                 Sign In
               </button>
             )}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded text-ivory hover:text-gold focus:outline-none"
+              className="p-1.5 sm:p-2 rounded text-ivory hover:text-gold focus:outline-none"
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>

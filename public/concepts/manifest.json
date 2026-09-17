@@ -163,5 +163,50 @@
     "original_image_path": "/concepts/original/concept-11.png",
     "full_image_path": "/concepts/full/concept-11.webp",
     "thumbnail_path": "/concepts/thumbs/concept-11.webp"
+  },
+  {
+    "id": "concept-12",
+    "code": "Concept 12",
+    "sort_order": 12,
+    "title": "Concept 12 — Bakunawa (The Moon Eater)",
+    "subtitle": "Mythology, Moon Phases & Celestial Ocean",
+    "description": "A dramatic and sculptural homage to the legendary Philippine celestial serpent, Bakunawa, emerging from tidal swells beneath moon phases, constellations, and starry Philippine skies.",
+    "alt_text": "Four views of Johnnie Walker Blue Label bottle featuring the mythological Bakunawa moon-eating dragon serpent with lunar phases and ocean waves.",
+    "has_alpha": false,
+    "width": 1536,
+    "height": 1024,
+    "original_image_path": "/concepts/original/concept-12.png",
+    "full_image_path": "/concepts/full/concept-12.webp",
+    "thumbnail_path": "/concepts/thumbs/concept-12.webp"
+  },
+  {
+    "id": "concept-13",
+    "code": "Concept 13",
+    "sort_order": 13,
+    "title": "Concept 13 — Sarimanok (Messenger of Fortune)",
+    "subtitle": "Flowing Feathers & Okir-Inspired Jewel Filigree",
+    "description": "An elegant ornamental tribute to the fabled Maranao Sarimanok, adorned in flowing jewel-toned plumes, okir-inspired curves, holding a fish, and soaring beneath the Philippine sun.",
+    "alt_text": "Four views of bottle featuring the mythical Sarimanok bird with vibrant turquoise, sapphire, and crimson feathers and golden okir filigree.",
+    "has_alpha": false,
+    "width": 1536,
+    "height": 1024,
+    "original_image_path": "/concepts/original/concept-13.png",
+    "full_image_path": "/concepts/full/concept-13.webp",
+    "thumbnail_path": "/concepts/thumbs/concept-13.webp"
+  },
+  {
+    "id": "concept-14",
+    "code": "Concept 14",
+    "sort_order": 14,
+    "title": "Concept 14 — Ani (The Golden Harvest)",
+    "subtitle": "Philippine Folk-Art Heritage & Everyday Icons",
+    "description": "A vibrant Philippine folk-print celebration of community and bounty, featuring the hardworking carabao, emerald rice terraces, the Philippine tarsier, a festive jeepney, basketball, and glowing Christmas parol.",
+    "alt_text": "Four views of bottle illustrated in bold Philippine folk-art style depicting the carabao, rice terraces, jeepney, basketball, and Christmas parol.",
+    "has_alpha": false,
+    "width": 1536,
+    "height": 1024,
+    "original_image_path": "/concepts/original/concept-14.png",
+    "full_image_path": "/concepts/full/concept-14.webp",
+    "thumbnail_path": "/concepts/thumbs/concept-14.webp"
   }
 ]

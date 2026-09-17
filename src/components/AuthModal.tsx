@@ -173,7 +173,7 @@ export function AuthModal() {
       aria-labelledby="auth-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-md bg-charcoal border border-gold/40 rounded-xl shadow-luxury p-7 text-ivory">
+      <div className="relative w-full max-w-md bg-charcoal border border-gold/40 rounded-xl shadow-luxury p-5 sm:p-7 text-ivory">
         
         {/* Close button */}
         <button

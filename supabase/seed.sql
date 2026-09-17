@@ -214,5 +214,47 @@ insert into public.designs (
   '/concepts/thumbs/concept-11.webp',
   11,
   true
+),
+(
+  'c0000000-0000-0000-0000-000000000012',
+  'e29d749a-14d2-4ce0-8d59-20f5efc34001',
+  'Concept 12',
+  'Concept 12 — Bakunawa (The Moon Eater)',
+  'Mythology, Moon Phases & Celestial Ocean',
+  'A dramatic and sculptural homage to the legendary Philippine celestial serpent, Bakunawa, emerging from tidal swells beneath moon phases, constellations, and starry Philippine skies.',
+  'Four views of Johnnie Walker Blue Label bottle featuring the mythological Bakunawa moon-eating dragon serpent with lunar phases and ocean waves.',
+  '/concepts/original/concept-12.png',
+  '/concepts/full/concept-12.webp',
+  '/concepts/thumbs/concept-12.webp',
+  12,
+  true
+),
+(
+  'c0000000-0000-0000-0000-000000000013',
+  'e29d749a-14d2-4ce0-8d59-20f5efc34001',
+  'Concept 13',
+  'Concept 13 — Sarimanok (Messenger of Fortune)',
+  'Flowing Feathers & Okir-Inspired Jewel Filigree',
+  'An elegant ornamental tribute to the fabled Maranao Sarimanok, adorned in flowing jewel-toned plumes, okir-inspired curves, holding a fish, and soaring beneath the Philippine sun.',
+  'Four views of bottle featuring the mythical Sarimanok bird with vibrant turquoise, sapphire, and crimson feathers and golden okir filigree.',
+  '/concepts/original/concept-13.png',
+  '/concepts/full/concept-13.webp',
+  '/concepts/thumbs/concept-13.webp',
+  13,
+  true
+),
+(
+  'c0000000-0000-0000-0000-000000000014',
+  'e29d749a-14d2-4ce0-8d59-20f5efc34001',
+  'Concept 14',
+  'Concept 14 — Ani (The Golden Harvest)',
+  'Philippine Folk-Art Heritage & Everyday Icons',
+  'A vibrant Philippine folk-print celebration of community and bounty, featuring the hardworking carabao, emerald rice terraces, the Philippine tarsier, a festive jeepney, basketball, and glowing Christmas parol.',
+  'Four views of bottle illustrated in bold Philippine folk-art style depicting the carabao, rice terraces, jeepney, basketball, and Christmas parol.',
+  '/concepts/original/concept-14.png',
+  '/concepts/full/concept-14.webp',
+  '/concepts/thumbs/concept-14.webp',
+  14,
+  true
 )
 on conflict (id) do nothing;
