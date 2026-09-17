@@ -6,6 +6,8 @@ import { AuthModal } from '@/components/AuthModal';
 import { LightboxModal } from '@/components/LightboxModal';
 import { VoteConfirmDialog } from '@/components/VoteConfirmDialog';
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://jwlimited.manila-wine.com';
+
 export const metadata: Metadata = {
   title: "Manila Wine Collector's Choice | 100-Bottle Philippines Edition Vote",
   description: 'Help choose the design for a proposed 100-bottle Johnnie Walker Blue Label Philippines limited edition. Cast your vote and register your priority interest.',
@@ -18,21 +20,40 @@ export const metadata: Metadata = {
     'Numbered Bottles',
   ],
   authors: [{ name: 'Manila Wine' }],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://collectors.manila-wine.com'),
+  metadataBase: new URL(APP_URL),
   alternates: {
     canonical: '/',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
   openGraph: {
-    title: "Manila Wine Collector's Choice: A Philippines Edition, Chosen by You",
+    title: "Manila Wine Collector's Choice | 100-Bottle Philippines Edition",
     description: '100 numbered bottles. One winning design. Vote for the design you would be proud to collect, display, or give.',
-    url: '/',
+    url: APP_URL,
     siteName: 'Manila Wine',
     images: [
       {
-        url: '/concepts/full/concept-11.webp',
-        width: 1536,
-        height: 1024,
-        alt: 'Johnnie Walker Blue Label Philippines Collector Edition Concept Preview',
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        type: 'image/jpeg',
+        alt: "Manila Wine Collector's Choice — Proposed Philippines Edition",
+      },
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        type: 'image/png',
+        alt: "Manila Wine Collector's Choice — Proposed Philippines Edition",
       },
     ],
     locale: 'en_PH',
@@ -40,9 +61,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Manila Wine Collector's Choice",
+    title: "Manila Wine Collector's Choice | 100-Bottle Philippines Edition",
     description: '100 numbered bottles. One winning design. Vote for the Philippines limited edition.',
-    images: ['/concepts/full/concept-11.webp'],
+    images: [`${APP_URL}/og-image.jpg`],
   },
   robots: {
     index: true,
@@ -64,6 +85,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/jpeg" />
+      </head>
       <body className="min-h-screen bg-ink text-ivory antialiased selection:bg-wine selection:text-white">
         <CampaignProvider>
           {children}

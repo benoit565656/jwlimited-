@@ -1,0 +1,21 @@
+{
+  "name": "Manila Wine Collector's Choice",
+  "short_name": "MW Collector",
+  "description": "Proposed 100-bottle Johnnie Walker Blue Label Philippines limited edition community vote.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141414",
+  "theme_color": "#141414",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

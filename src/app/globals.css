@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, Cambria, serif;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
@@ -28,7 +28,16 @@
   }
 }
 
-/* Custom luxury scrollbar */
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom luxury scrollbar for main page */
 ::-webkit-scrollbar {
   width: 8px;
 }

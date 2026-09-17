@@ -127,7 +127,7 @@ export function LightboxModal() {
       </button>
 
       {/* Main Lightbox Content Area */}
-      <div className="relative w-full h-full max-w-6xl flex flex-col justify-center items-center pt-14 pb-24 overflow-y-auto">
+      <div className="relative w-full h-full max-w-6xl flex flex-col justify-center items-center pt-14 pb-24 overflow-y-auto no-scrollbar">
         <div 
           className={`relative w-full transition-all duration-300 flex items-center justify-center ${
             isZoomed ? 'max-w-none h-[110vh] cursor-zoom-out' : 'max-h-[65vh] aspect-[3/2] cursor-zoom-in'
