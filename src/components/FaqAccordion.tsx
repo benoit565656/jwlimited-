@@ -47,16 +47,16 @@ export function FaqAccordion() {
 
   return (
     <section id="faq" className="py-20 md:py-28 bg-ink border-b border-charcoal-border scroll-mt-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
           <span className="text-xs uppercase tracking-widest text-gold font-semibold">
             Common Inquiries
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl text-ivory font-normal tracking-tight">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-ivory font-normal tracking-tight">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-ivory/70 font-light">
+          <p className="text-sm sm:text-base text-ivory/70 font-light">
             Everything you need to know about the voting process, numbering, and priority access.
           </p>
         </div>
@@ -67,25 +67,27 @@ export function FaqAccordion() {
             return (
               <div
                 key={idx}
-                className="border border-charcoal-border rounded-lg bg-charcoal/40 overflow-hidden transition-colors"
+                className="border border-charcoal-border hover:border-gold/30 rounded-xl bg-charcoal/50 backdrop-blur-sm overflow-hidden transition-all duration-200 shadow-sm"
               >
                 <button
                   onClick={() => toggle(idx)}
-                  className="w-full px-6 py-4.5 text-left flex items-center justify-between gap-4 hover:bg-charcoal/60 transition-colors focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="w-full px-6 sm:px-8 py-5 sm:py-6 min-h-[68px] sm:min-h-[76px] text-left flex items-center justify-between gap-4 hover:bg-charcoal/70 transition-colors focus:outline-none focus:ring-1 focus:ring-gold"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-serif text-base sm:text-lg text-ivory font-normal">
+                  <span className="font-serif text-base sm:text-lg text-ivory font-normal tracking-wide">
                     {faq.q}
                   </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-gold flex-shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-gold' : 'text-ivory/50'
-                    }`}
-                  />
+                  <div className="w-8 h-8 rounded-full bg-ink/60 border border-charcoal-border flex items-center justify-center flex-shrink-0">
+                    <ChevronDown
+                      className={`w-4 h-4 text-gold transition-transform duration-200 ${
+                        isOpen ? 'rotate-180 text-gold' : 'text-ivory/60'
+                      }`}
+                    />
+                  </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-5 pt-1 text-xs sm:text-sm text-ivory/75 leading-relaxed border-t border-charcoal-border/50 bg-ink/30 animate-in fade-in duration-150">
+                  <div className="px-6 sm:px-8 py-5 text-sm sm:text-base text-ivory/80 leading-relaxed border-t border-charcoal-border/50 bg-ink/40 animate-in fade-in duration-150">
                     {faq.a}
                   </div>
                 )}
