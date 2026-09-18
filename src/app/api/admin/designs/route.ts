@@ -6,23 +6,39 @@ import { getCurrentUser } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 const UpdateDesignSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().min(1),
   code: z.string().optional(),
   title: z.string().min(1).optional(),
   subtitle: z.string().nullable().optional(),
   description: z.string().optional(),
   alt_text: z.string().optional(),
+  original_image_path: z.string().optional(),
+  full_image_path: z.string().optional(),
+  thumbnail_path: z.string().optional(),
+  is_published: z.boolean().optional(),
+});
+
+const CreateDesignSchema = z.object({
+  campaign_id: z.string().min(1),
+  code: z.string().optional(),
+  title: z.string().min(1, 'Title is required'),
+  subtitle: z.string().nullable().optional(),
+  description: z.string().optional(),
+  alt_text: z.string().optional(),
+  original_image_path: z.string().optional(),
+  full_image_path: z.string().optional(),
+  thumbnail_path: z.string().optional(),
   is_published: z.boolean().optional(),
 });
 
 const ReorderSchema = z.object({
-  campaign_id: z.string().uuid(),
-  ordered_ids: z.array(z.string().uuid()),
+  campaign_id: z.string().min(1),
+  ordered_ids: z.array(z.string().min(1)),
 });
 
 const SetWinnerSchema = z.object({
-  campaign_id: z.string().uuid(),
-  winning_design_id: z.string().uuid().nullable(),
+  campaign_id: z.string().min(1),
+  winning_design_id: z.string().min(1).nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -73,7 +89,7 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// POST: Reorder or set winner
+// POST: Create, Reorder or set winner
 export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
@@ -85,6 +101,15 @@ export async function POST(req: NextRequest) {
     const action = searchParams.get('action');
     const body = await req.json();
     const db = getDb();
+
+    if (action === 'create' || (!action && body.title && body.campaign_id)) {
+      const parsed = CreateDesignSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json({ error: 'Invalid concept data', details: parsed.error.format() }, { status: 400 });
+      }
+      const created = db.createDesign(parsed.data.campaign_id, parsed.data, user.email);
+      return NextResponse.json({ success: true, design: created });
+    }
 
     if (action === 'reorder') {
       const parsed = ReorderSchema.safeParse(body);

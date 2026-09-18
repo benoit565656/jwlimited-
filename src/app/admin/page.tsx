@@ -38,7 +38,9 @@ import {
   AlertCircle,
   Upload,
   Play,
-  FileText
+  FileText,
+  Plus,
+  X
 } from 'lucide-react';
 import { formatPhp, formatDate } from '@/lib/utils';
 
@@ -64,8 +66,20 @@ export default function AdminPage() {
   const [settingsForm, setSettingsForm] = useState<Partial<Campaign>>({});
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  // Design edit modal
+  // Design edit & creation states
   const [editingDesign, setEditingDesign] = useState<Design | null>(null);
+  const [isUploadingEditImage, setIsUploadingEditImage] = useState(false);
+  const [isAddingConcept, setIsAddingConcept] = useState(false);
+  const [isSubmittingConcept, setIsSubmittingConcept] = useState(false);
+  const [conceptImageFile, setConceptImageFile] = useState<File | null>(null);
+  const [conceptImagePreview, setConceptImagePreview] = useState<string | null>(null);
+  const [newConceptForm, setNewConceptForm] = useState({
+    code: '',
+    title: '',
+    subtitle: '',
+    description: '',
+    alt_text: '',
+  });
 
   // Invitations import state
   const [importEmailsText, setImportEmailsText] = useState('');
@@ -204,6 +218,111 @@ export default function AdminPage() {
       fetchAdminData();
     } catch (err) {
       alert('Error updating design');
+    }
+  };
+
+  const handleEditImageUpload = async (file: File) => {
+    if (!editingDesign) return;
+    setIsUploadingEditImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('design_id', editingDesign.id);
+      formData.append('code', editingDesign.code);
+
+      const res = await fetch('/api/admin/designs/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+      setEditingDesign((prev) => prev ? {
+        ...prev,
+        thumbnail_path: data.thumbnail_path,
+        full_image_path: data.full_image_path,
+        original_image_path: data.original_image_path,
+      } : null);
+
+      fetchAdminData();
+    } catch (err: any) {
+      alert(`Image upload failed: ${err.message}`);
+    } finally {
+      setIsUploadingEditImage(false);
+    }
+  };
+
+  const handleNewConceptFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setConceptImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setConceptImagePreview(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCreateConcept = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!campaign) return;
+    if (!newConceptForm.title.trim()) {
+      alert('Please enter a concept title.');
+      return;
+    }
+
+    setIsSubmittingConcept(true);
+    try {
+      let imagePaths = {
+        thumbnail_path: '/concepts/thumbs/concept-01.webp',
+        full_image_path: '/concepts/full/concept-01.webp',
+        original_image_path: '/concepts/original/concept-01.png',
+      };
+
+      if (conceptImageFile) {
+        const formData = new FormData();
+        formData.append('file', conceptImageFile);
+        formData.append('code', newConceptForm.code || 'concept');
+
+        const uploadRes = await fetch('/api/admin/designs/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || 'Image upload failed');
+        imagePaths = {
+          thumbnail_path: uploadData.thumbnail_path,
+          full_image_path: uploadData.full_image_path,
+          original_image_path: uploadData.original_image_path,
+        };
+      }
+
+      const res = await fetch('/api/admin/designs?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          campaign_id: campaign.id,
+          code: newConceptForm.code.trim() || undefined,
+          title: newConceptForm.title.trim(),
+          subtitle: newConceptForm.subtitle.trim() || null,
+          description: newConceptForm.description.trim(),
+          alt_text: newConceptForm.alt_text.trim() || undefined,
+          ...imagePaths,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create concept');
+
+      setIsAddingConcept(false);
+      setConceptImageFile(null);
+      setConceptImagePreview(null);
+      fetchAdminData();
+      alert(`Concept "${data.design.code}" added successfully!`);
+    } catch (err: any) {
+      alert(`Error creating concept: ${err.message}`);
+    } finally {
+      setIsSubmittingConcept(false);
     }
   };
 
@@ -1040,13 +1159,33 @@ export default function AdminPage() {
         {/* TAB 3: DESIGN ARTWORKS */}
         {activeTab === 'designs' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h3 className="font-serif text-xl text-ivory">Concept Design Management</h3>
                 <p className="text-xs text-ivory/60">
-                  Manage all campaign bottle artworks, rename, update descriptions, reorder, or designate the winner.
+                  Manage all campaign bottle artworks, replace images, rename, update descriptions, add new concepts, or designate the winner.
                 </p>
               </div>
+              <button
+                onClick={() => {
+                  const nextNum = (designs.length || 0) + 1;
+                  const codeStr = `Concept ${String(nextNum).padStart(2, '0')}`;
+                  setNewConceptForm({
+                    code: codeStr,
+                    title: `${codeStr} — `,
+                    subtitle: '',
+                    description: '',
+                    alt_text: `Four views of ${codeStr} Johnnie Walker Blue Label bottle artwork`,
+                  });
+                  setConceptImageFile(null);
+                  setConceptImagePreview(null);
+                  setIsAddingConcept(true);
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase shadow-gold-subtle transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add New Concept
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1061,7 +1200,7 @@ export default function AdminPage() {
                     }`}
                   >
                     <div>
-                      <div className="relative aspect-[3/2] w-full rounded bg-ink-deep mb-3 overflow-hidden">
+                      <div className="relative aspect-[3/2] w-full rounded bg-ink-deep mb-3 overflow-hidden group/img">
                         <Image
                           src={design.thumbnail_path}
                           alt={design.alt_text}
@@ -1069,10 +1208,40 @@ export default function AdminPage() {
                           className="object-contain p-2"
                         />
                         {isWinner && (
-                          <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-gold text-ink font-bold text-[10px] tracking-wider uppercase">
+                          <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-gold text-ink font-bold text-[10px] tracking-wider uppercase z-20">
                             Winning Design
                           </div>
                         )}
+                        <label className="absolute inset-0 bg-black/70 opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-opacity z-10 p-2 text-center">
+                          <Upload className="w-5 h-5 text-gold" />
+                          <span className="text-xs text-ivory font-medium">Click to Change Image</span>
+                          <span className="text-[10px] text-ivory/60">Auto-converts to WebP</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              formData.append('design_id', design.id);
+                              formData.append('code', design.code);
+                              try {
+                                const res = await fetch('/api/admin/designs/upload', {
+                                  method: 'POST',
+                                  body: formData,
+                                });
+                                const data = await res.json();
+                                if (!res.ok) throw new Error(data.error || 'Failed to upload image');
+                                fetchAdminData();
+                                alert(`Image updated for ${design.code}!`);
+                              } catch (err: any) {
+                                alert(`Upload failed: ${err.message}`);
+                              }
+                            }}
+                          />
+                        </label>
                       </div>
 
                       <div className="flex items-center justify-between text-xs text-gold mb-1">
@@ -1118,9 +1287,56 @@ export default function AdminPage() {
 
             {/* Design Edit Modal */}
             {editingDesign && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                <form onSubmit={handleUpdateDesign} className="w-full max-w-lg bg-charcoal border border-gold/40 rounded-xl p-6 text-ivory space-y-4">
-                  <h3 className="font-serif text-xl text-ivory">Edit {editingDesign.code}</h3>
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+                <form onSubmit={handleUpdateDesign} className="w-full max-w-lg bg-charcoal border border-gold/40 rounded-xl p-6 text-ivory space-y-4 my-8 shadow-2xl">
+                  <div className="flex items-center justify-between pb-3 border-b border-charcoal-border">
+                    <h3 className="font-serif text-xl text-ivory">Edit {editingDesign.code}</h3>
+                    <button
+                      type="button"
+                      onClick={() => setEditingDesign(null)}
+                      className="text-ivory/40 hover:text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Artwork Image Replacement Section */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1.5">Artwork Image</label>
+                    <div className="flex items-center gap-4 p-3 bg-ink rounded border border-charcoal-border">
+                      <div className="relative w-20 h-20 rounded bg-ink-deep border border-charcoal-border overflow-hidden flex-shrink-0">
+                        <Image
+                          src={editingDesign.thumbnail_path || editingDesign.full_image_path}
+                          alt={editingDesign.title}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <p className="text-xs text-ivory/80 font-mono truncate">{editingDesign.thumbnail_path}</p>
+                        <div className="flex items-center gap-2">
+                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-charcoal hover:bg-ink-soft border border-charcoal-border text-xs text-gold hover:border-gold transition-colors">
+                            <Upload className="w-3.5 h-3.5" />
+                            {isUploadingEditImage ? 'Processing WebP...' : 'Upload / Replace Image'}
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp"
+                              disabled={isUploadingEditImage}
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleEditImageUpload(file);
+                              }}
+                            />
+                          </label>
+                          {isUploadingEditImage && (
+                            <span className="text-[11px] text-gold animate-pulse">Generating WebP & thumbs...</span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-ivory/40">Accepts PNG, JPG, WEBP. Automatically converts to WebP full & thumbnail.</p>
+                      </div>
+                    </div>
+                  </div>
 
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1">Title</label>
@@ -1175,6 +1391,167 @@ export default function AdminPage() {
                       className="px-5 py-2 rounded bg-wine text-white text-xs font-semibold tracking-wider uppercase"
                     >
                       Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Add New Concept Modal */}
+            {isAddingConcept && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm overflow-y-auto">
+                <form onSubmit={handleCreateConcept} className="w-full max-w-xl bg-charcoal border border-gold/50 rounded-xl p-6 text-ivory space-y-4 my-8 shadow-2xl">
+                  <div className="flex items-center justify-between pb-3 border-b border-charcoal-border">
+                    <div>
+                      <h3 className="font-serif text-xl text-gold">Add New Concept Artwork</h3>
+                      <p className="text-xs text-ivory/60">Add a new bottle design to the Manila Wine Collector's Choice campaign.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingConcept(false)}
+                      className="p-1 rounded text-ivory/50 hover:text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Image Upload Area */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-gold mb-1.5 font-semibold">
+                      Bottle Artwork Image <span className="text-wine-light">*</span>
+                    </label>
+                    <div className="border-2 border-dashed border-charcoal-border hover:border-gold/60 rounded-xl p-4 bg-ink/50 text-center transition-colors">
+                      {conceptImagePreview ? (
+                        <div className="space-y-3">
+                          <div className="relative aspect-[3/2] w-full max-w-xs mx-auto rounded-lg overflow-hidden bg-ink-deep border border-charcoal-border">
+                            <img
+                              src={conceptImagePreview}
+                              alt="New Concept Preview"
+                              className="w-full h-full object-contain p-2"
+                            />
+                          </div>
+                          <div className="flex items-center justify-center gap-3">
+                            <label className="cursor-pointer text-xs text-gold hover:underline">
+                              Choose Different File
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                className="hidden"
+                                onChange={handleNewConceptFileChange}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setConceptImageFile(null);
+                                setConceptImagePreview(null);
+                              }}
+                              className="text-xs text-ivory/40 hover:text-wine-light"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer flex flex-col items-center justify-center py-6 gap-2">
+                          <div className="w-12 h-12 rounded-full bg-gold/10 text-gold flex items-center justify-center border border-gold/30">
+                            <Upload className="w-6 h-6" />
+                          </div>
+                          <p className="text-xs text-ivory font-medium">Click to upload bottle artwork (PNG, JPG, WEBP)</p>
+                          <p className="text-[11px] text-ivory/50">High-res 4-bottle render recommended (1536×1024 or higher)</p>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            onChange={handleNewConceptFileChange}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1">Concept Code</label>
+                      <input
+                        type="text"
+                        required
+                        value={newConceptForm.code}
+                        onChange={(e) => setNewConceptForm({ ...newConceptForm, code: e.target.value })}
+                        className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border text-xs text-ivory focus:border-gold outline-none"
+                        placeholder="e.g. Concept 16"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1">Subtitle / Craft Note</label>
+                      <input
+                        type="text"
+                        value={newConceptForm.subtitle}
+                        onChange={(e) => setNewConceptForm({ ...newConceptForm, subtitle: e.target.value })}
+                        className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border text-xs text-ivory focus:border-gold outline-none"
+                        placeholder="e.g. Royal Pearls & Golden Filigree"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1">
+                      Title <span className="text-wine-light">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newConceptForm.title}
+                      onChange={(e) => setNewConceptForm({ ...newConceptForm, title: e.target.value })}
+                      className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border text-xs text-ivory focus:border-gold outline-none"
+                      placeholder="e.g. Concept 16 — Royal Maharlika"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1">Description</label>
+                    <textarea
+                      rows={3}
+                      value={newConceptForm.description}
+                      onChange={(e) => setNewConceptForm({ ...newConceptForm, description: e.target.value })}
+                      className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border text-xs text-ivory focus:border-gold outline-none"
+                      placeholder="Describe the artwork inspiration, cultural motifs, materials, and significance..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1">Accessibility Alt Text</label>
+                    <textarea
+                      rows={2}
+                      value={newConceptForm.alt_text}
+                      onChange={(e) => setNewConceptForm({ ...newConceptForm, alt_text: e.target.value })}
+                      className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border text-xs text-ivory focus:border-gold outline-none"
+                      placeholder="Visual description for screen readers and search engines..."
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t border-charcoal-border">
+                    <button
+                      type="button"
+                      disabled={isSubmittingConcept}
+                      onClick={() => setIsAddingConcept(false)}
+                      className="px-4 py-2 rounded text-xs text-ivory/60 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmittingConcept}
+                      className="px-5 py-2.5 rounded bg-gold hover:bg-gold-light text-ink font-semibold text-xs tracking-wider uppercase shadow-gold-subtle disabled:opacity-50 inline-flex items-center gap-2"
+                    >
+                      {isSubmittingConcept ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          Creating Concept...
+                        </>
+                      ) : (
+                        'Publish Concept'
+                      )}
                     </button>
                   </div>
                 </form>

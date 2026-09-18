@@ -61,7 +61,7 @@ export function DesignGallery() {
             return (
               <article
                 key={design.id}
-                className={`flex flex-col rounded-xl overflow-hidden transition-all duration-300 ${
+                className={`group flex flex-col rounded-xl overflow-hidden transition-all duration-300 ${
                   isUserSelection
                     ? 'bg-charcoal/90 ring-2 ring-gold shadow-gold-subtle'
                     : isWinner
@@ -69,10 +69,10 @@ export function DesignGallery() {
                     : 'bg-charcoal/40 border border-charcoal-border hover:border-gold/30 hover:bg-charcoal/60'
                 }`}
               >
-                {/* Visual Header / Concept Artwork Container */}
+                {/* Visual Header / Concept Artwork Container (Mask) */}
                 <div 
                   onClick={() => handleOpenLightbox(design.id)}
-                  className="relative aspect-[3/2] w-full cursor-pointer overflow-hidden rounded-t-xl bg-[#18191C] group"
+                  className="relative aspect-[3/2] w-full cursor-pointer overflow-hidden rounded-t-xl bg-[#18191C]"
                   tabIndex={0}
                   role="button"
                   aria-label={`View ${design.title} full screen`}
@@ -91,7 +91,7 @@ export function DesignGallery() {
                     alt={design.alt_text}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-contain p-2.5 transition-all duration-700 ease-out group-hover:scale-125 group-hover:brightness-110 will-change-transform"
+                    className="object-contain p-2.5 transition-transform duration-700 ease-out group-hover:scale-135 group-hover:brightness-105 will-change-transform"
                     loading="lazy"
                   />
 

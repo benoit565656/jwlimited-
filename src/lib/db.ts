@@ -447,6 +447,62 @@ class LocalDatabase {
       }));
   }
 
+  createDesign(
+    campaignId: string, 
+    data: {
+      code?: string;
+      title: string;
+      subtitle?: string | null;
+      description?: string;
+      alt_text?: string;
+      original_image_path?: string;
+      full_image_path?: string;
+      thumbnail_path?: string;
+      is_published?: boolean;
+    }, 
+    actorEmail: string = 'admin'
+  ): Design {
+    const campaignDesigns = this.db.designs.filter(d => d.campaign_id === campaignId);
+    const maxOrder = campaignDesigns.reduce((max, d) => Math.max(max, d.sort_order || 0), 0);
+    const nextOrder = maxOrder + 1;
+    const defaultCode = `Concept ${String(nextOrder).padStart(2, '0')}`;
+    const code = data.code?.trim() || defaultCode;
+    const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `c-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+    const fallbackImg = '/concepts/full/concept-01.webp';
+    const fallbackThumb = '/concepts/thumbs/concept-01.webp';
+
+    const newDesign: Design = {
+      id: newId,
+      campaign_id: campaignId,
+      code,
+      title: data.title.trim(),
+      subtitle: data.subtitle ? data.subtitle.trim() : null,
+      description: data.description ? data.description.trim() : '',
+      alt_text: data.alt_text ? data.alt_text.trim() : `${code} bottle concept artwork for Johnnie Walker Philippines Edition`,
+      original_image_path: data.original_image_path || fallbackImg,
+      full_image_path: data.full_image_path || fallbackImg,
+      thumbnail_path: data.thumbnail_path || fallbackThumb,
+      sort_order: nextOrder,
+      is_published: data.is_published !== undefined ? data.is_published : true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    this.db.designs.push(newDesign);
+
+    this.logAudit({
+      actor_email: actorEmail,
+      action: 'CREATE_DESIGN',
+      entity_type: 'design',
+      entity_id: newId,
+      after_state: newDesign,
+    });
+
+    this.save();
+    return newDesign;
+  }
+
   updateDesign(designId: string, updates: Partial<Design>, actorEmail: string = 'admin'): Design {
     const idx = this.db.designs.findIndex(d => d.id === designId);
     if (idx === -1) throw new Error('Design not found');
