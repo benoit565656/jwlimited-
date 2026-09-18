@@ -95,7 +95,7 @@ export default function AdminPage() {
   const [brevoSubject, setBrevoSubject] = useState('Exclusive Invitation: Shape the 100-Bottle Johnnie Walker Philippines Edition');
   const [brevoHeadline, setBrevoHeadline] = useState('Exclusive Private Invitation');
   const [brevoPreviewText, setBrevoPreviewText] = useState('Cast your decisive vote for the official 100-bottle Philippines Edition and reserve your numbered bottle.');
-  const [brevoCtaText, setBrevoCtaText] = useState('EXPLORE ALL 15 DESIGNS & CAST YOUR VOTE');
+  const [brevoCtaText, setBrevoCtaText] = useState('EXPLORE ALL 22 DESIGNS & CAST YOUR VOTE');
   const [brevoTestEmail, setBrevoTestEmail] = useState('contact@manila-wine.com');
   const [brevoBlastEmails, setBrevoBlastEmails] = useState('');
   const [brevoCampaignName, setBrevoCampaignName] = useState('JW Philippines 100-Bottle Collector Invitation');
@@ -1972,7 +1972,7 @@ export default function AdminPage() {
                           type="text"
                           value={brevoCtaText}
                           onChange={(e) => setBrevoCtaText(e.target.value)}
-                          placeholder="EXPLORE ALL 15 DESIGNS & CAST YOUR VOTE"
+                          placeholder="EXPLORE ALL 22 DESIGNS & CAST YOUR VOTE"
                           className="w-full px-3.5 py-2 bg-ink rounded border border-charcoal-border focus:border-gold text-ivory"
                         />
                       </div>

@@ -37,7 +37,7 @@ export function DesignGallery() {
             Proposed Concept Collection
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-ivory font-normal tracking-tight mt-2 mb-4">
-            The {designs.length || 15} Concept Artworks
+            The {designs.length || 22} Concept Artworks
           </h2>
           <p className="text-base text-ivory/70 leading-relaxed font-light">
             Each artwork explores a distinct facet of Philippine natural wonder, indigenous heritage, and bespoke craftsmanship. 

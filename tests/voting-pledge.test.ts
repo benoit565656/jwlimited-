@@ -156,9 +156,9 @@ describe('Manila Wine Collector Choice Voting & Pledge Logic', () => {
     expect(myPledgeExport?.bottle_count).toBe(5);
   });
 
-  it('9. Loads all 15 bespoke bottle concepts including Concept 15 — Treasures of the Philippines', () => {
+  it('9. Loads all 22 bespoke bottle concepts including Concept 15 and Concept 22', () => {
     const designs = db.getDesigns(campaign.id);
-    expect(designs.length).toBe(15);
+    expect(designs.length).toBe(22);
 
     const concept15 = designs.find(d => d.code === 'Concept 15');
     expect(concept15).toBeDefined();
@@ -166,5 +166,12 @@ describe('Manila Wine Collector Choice Voting & Pledge Logic', () => {
     expect(concept15?.full_image_path).toBe('/concepts/full/concept-15.webp');
     expect(concept15?.thumbnail_path).toBe('/concepts/thumbs/concept-15.webp');
     expect(concept15?.original_image_path).toBe('/concepts/original/concept-15.png');
+
+    const concept22 = designs.find(d => d.code === 'Concept 22');
+    expect(concept22).toBeDefined();
+    expect(concept22?.title).toContain('Bayanihan');
+    expect(concept22?.full_image_path).toBe('/concepts/full/concept-22.webp');
+    expect(concept22?.thumbnail_path).toBe('/concepts/thumbs/concept-22.webp');
+    expect(concept22?.original_image_path).toBe('/concepts/original/concept-22.png');
   });
 });

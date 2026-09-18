@@ -201,7 +201,7 @@ export function generateLuxuryEmailHtml(options: TemplateOptions = {}): string {
   const previewText = options.previewText || 'Cast your decisive vote for the official 100-bottle Philippines Edition and reserve your numbered bottle.';
   const headline = options.headline || 'Exclusive Private Invitation';
   const subheadline = options.subheadline || 'A Milestone 100-Bottle Commemorative Edition';
-  const ctaText = options.ctaText || 'EXPLORE ALL 15 DESIGNS & CAST YOUR VOTE';
+  const ctaText = options.ctaText || 'EXPLORE ALL 22 DESIGNS & CAST YOUR VOTE';
   const ctaUrl = options.ctaUrl || `${baseUrl}#gallery`;
   const registryUrl = `${baseUrl}#edition`;
   const logoUrl = `${baseUrl}/brand/logo.png`;
@@ -326,7 +326,7 @@ export function generateLuxuryEmailHtml(options: TemplateOptions = {}): string {
                 Manila Wine is privileged to invite you to participate in an unprecedented collector’s milestone: the commissioning of an ultra-rare, proposed <strong>100-bottle Philippines Commemorative Edition</strong> of Johnnie Walker Blue Label.
               </p>
               <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 25px; color: #D5D1C8; text-align: left;">
-                Instead of deciding behind closed doors, we have placed the ultimate creative choice into the hands of our private collectors. <strong>15 master design concepts</strong> have been curated—celebrating our heritage, landscapes, folklore, and triumphs.
+                Instead of deciding behind closed doors, we have placed the ultimate creative choice into the hands of our private collectors. <strong>22 master design concepts</strong> have been curated—celebrating our heritage, landscapes, folklore, and triumphs.
               </p>
 
               <!-- Three Pillars Table -->
@@ -369,15 +369,15 @@ export function generateLuxuryEmailHtml(options: TemplateOptions = {}): string {
                 </tr>
               </table>
 
-              <!-- 15 Concepts Curation Callout -->
+              <!-- 22 Concepts Curation Callout -->
               <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #1B1B1B; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 6px; margin: 24px 0;">
                 <tr>
                   <td align="center" style="padding: 18px 20px;">
                     <div style="color: #D4AF37; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;">
-                      15 Master Heritage Concepts Curated
+                      22 Master Heritage Concepts Curated
                     </div>
                     <div style="color: #A9A49B; font-size: 13px; line-height: 20px;">
-                      From Mayon Volcano and Banaue to the mythological Bakunawa and Sarimanok — review all 15 bottle artworks in complete 360&deg; high-resolution detail.
+                      From Mayon Volcano and Banaue to the mythological Bakunawa and Sarimanok — review all 22 bottle artworks in complete 360&deg; high-resolution detail.
                     </div>
                   </td>
                 </tr>

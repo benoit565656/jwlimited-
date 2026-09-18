@@ -46,7 +46,7 @@ export function Hero() {
                       designs.find(d => d.code === 'Concept 11') || 
                       designs[0];
 
-  const totalDesigns = designs.length || 15;
+  const totalDesigns = designs.length || 22;
 
   return (
     <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-charcoal-border bg-gradient-to-b from-ink via-ink-deep to-ink">
