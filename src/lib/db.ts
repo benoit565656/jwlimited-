@@ -26,7 +26,8 @@ interface DatabaseSchema {
   audit_logs: AdminAuditLog[];
 }
 
-const DB_PATH = path.join(process.cwd(), 'data', 'store.json');
+const ROOT_DB_PATH = path.join(process.cwd(), 'data', 'store.json');
+const TMP_DB_PATH = path.join('/tmp', 'store.json');
 
 // Default Seed Campaign per Section 18
 const DEFAULT_CAMPAIGN_ID = 'e29d749a-14d2-4ce0-8d59-20f5efc34001';
@@ -307,8 +308,17 @@ class LocalDatabase {
 
   private load(): DatabaseSchema {
     try {
-      if (fs.existsSync(DB_PATH)) {
-        const raw = fs.readFileSync(DB_PATH, 'utf-8');
+      // Check /tmp first for serverless updates
+      if (fs.existsSync(TMP_DB_PATH)) {
+        const raw = fs.readFileSync(TMP_DB_PATH, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (parsed.campaigns && parsed.designs) {
+          return parsed;
+        }
+      }
+
+      if (fs.existsSync(ROOT_DB_PATH)) {
+        const raw = fs.readFileSync(ROOT_DB_PATH, 'utf-8');
         const parsed = JSON.parse(raw);
         if (parsed.campaigns && parsed.designs) {
           return parsed;
@@ -371,15 +381,26 @@ class LocalDatabase {
   }
 
   private save(data?: DatabaseSchema) {
+    const toSave = data || this.db;
+    const jsonStr = JSON.stringify(toSave, null, 2);
+
+    // 1. Try writing to primary project storage
     try {
-      const toSave = data || this.db;
-      const dir = path.dirname(DB_PATH);
+      const dir = path.dirname(ROOT_DB_PATH);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      fs.writeFileSync(DB_PATH, JSON.stringify(toSave, null, 2), 'utf-8');
+      fs.writeFileSync(ROOT_DB_PATH, jsonStr, 'utf-8');
+      return;
+    } catch {
+      // Read-only filesystem (AWS Lambda / Vercel EROFS). Proceed to /tmp fallback.
+    }
+
+    // 2. Fallback to /tmp in serverless environments
+    try {
+      fs.writeFileSync(TMP_DB_PATH, jsonStr, 'utf-8');
     } catch (err) {
-      console.error('Failed to persist local store:', err);
+      console.error('Failed to persist store to /tmp:', err);
     }
   }
 

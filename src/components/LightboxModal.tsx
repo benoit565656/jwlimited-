@@ -251,6 +251,10 @@ export function LightboxModal() {
               sizes="(max-width: 768px) 100vw, 1600px"
               className="object-contain p-2"
               priority
+              unoptimized={Boolean(
+                (design.original_image_path || design.full_image_path)?.startsWith('data:') || 
+                (design.original_image_path || design.full_image_path)?.startsWith('http')
+              )}
             />
           </div>
 

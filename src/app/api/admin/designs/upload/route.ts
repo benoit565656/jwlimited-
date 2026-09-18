@@ -32,47 +32,61 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const timestamp = Date.now();
-    let baseSlug = 'concept-custom';
-    if (customSlug) {
-      baseSlug = customSlug.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
-    } else if (code) {
-      baseSlug = code.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
-    }
-    const fileSlug = `${baseSlug}-${timestamp}`;
+    // 1. Process in-memory with Sharp
+    // High-resolution full WebP (max 1600px width, quality 86)
+    const fullWebpBuffer = await sharp(buffer)
+      .resize({ width: 1600, withoutEnlargement: true, fit: 'inside' })
+      .webp({ quality: 86, effort: 4 })
+      .toBuffer();
 
-    const originalDir = path.join(process.cwd(), 'public', 'concepts', 'original');
-    const fullDir = path.join(process.cwd(), 'public', 'concepts', 'full');
-    const thumbsDir = path.join(process.cwd(), 'public', 'concepts', 'thumbs');
-
-    [originalDir, fullDir, thumbsDir].forEach((dir) => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-    });
-
-    const originalExt = path.extname(file.name).toLowerCase() || '.png';
-    const originalFilename = `${fileSlug}${originalExt}`;
-    const webpFilename = `${fileSlug}.webp`;
-
-    const originalFilePath = path.join(originalDir, originalFilename);
-    const fullFilePath = path.join(fullDir, webpFilename);
-    const thumbFilePath = path.join(thumbsDir, webpFilename);
-
-    fs.writeFileSync(originalFilePath, buffer);
-
-    await sharp(buffer)
-      .webp({ quality: 90, effort: 4 })
-      .toFile(fullFilePath);
-
-    await sharp(buffer)
+    // Fast-loading thumbnail WebP (600px width, quality 80)
+    const thumbWebpBuffer = await sharp(buffer)
       .resize({ width: 600, fit: 'contain' })
-      .webp({ quality: 85, effort: 4 })
-      .toFile(thumbFilePath);
+      .webp({ quality: 80, effort: 4 })
+      .toBuffer();
 
-    const original_image_path = `/concepts/original/${originalFilename}`;
-    const full_image_path = `/concepts/full/${webpFilename}`;
-    const thumbnail_path = `/concepts/thumbs/${webpFilename}`;
+    // Default to in-memory Base64 Data URIs (guaranteed serverless/Vercel safe)
+    const fullDataUri = `data:image/webp;base64,${fullWebpBuffer.toString('base64')}`;
+    const thumbDataUri = `data:image/webp;base64,${thumbWebpBuffer.toString('base64')}`;
+
+    let original_image_path = fullDataUri;
+    let full_image_path = fullDataUri;
+    let thumbnail_path = thumbDataUri;
+
+    // 2. Attempt filesystem write only if the environment filesystem is writeable
+    try {
+      const timestamp = Date.now();
+      let baseSlug = 'concept-custom';
+      if (customSlug) {
+        baseSlug = customSlug.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      } else if (code) {
+        baseSlug = code.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      }
+      const fileSlug = `${baseSlug}-${timestamp}`;
+
+      const originalDir = path.join(process.cwd(), 'public', 'concepts', 'original');
+      const fullDir = path.join(process.cwd(), 'public', 'concepts', 'full');
+      const thumbsDir = path.join(process.cwd(), 'public', 'concepts', 'thumbs');
+
+      [originalDir, fullDir, thumbsDir].forEach((dir) => {
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      });
+
+      const originalExt = path.extname(file.name).toLowerCase() || '.png';
+      const originalFilename = `${fileSlug}${originalExt}`;
+      const webpFilename = `${fileSlug}.webp`;
+
+      fs.writeFileSync(path.join(originalDir, originalFilename), buffer);
+      fs.writeFileSync(path.join(fullDir, webpFilename), fullWebpBuffer);
+      fs.writeFileSync(path.join(thumbsDir, webpFilename), thumbWebpBuffer);
+
+      original_image_path = `/concepts/original/${originalFilename}`;
+      full_image_path = `/concepts/full/${webpFilename}`;
+      thumbnail_path = `/concepts/thumbs/${webpFilename}`;
+    } catch {
+      // Serverless environment (AWS Lambda / Vercel EROFS read-only filesystem)
+      // WebP base64 Data URIs will be used directly
+    }
 
     let updatedDesign = null;
     if (designId) {

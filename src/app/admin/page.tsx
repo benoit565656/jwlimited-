@@ -79,6 +79,7 @@ export default function AdminPage() {
     subtitle: '',
     description: '',
     alt_text: '',
+    image_url: '',
   });
 
   // Invitations import state
@@ -274,9 +275,9 @@ export default function AdminPage() {
     setIsSubmittingConcept(true);
     try {
       let imagePaths = {
-        thumbnail_path: '/concepts/thumbs/concept-01.webp',
-        full_image_path: '/concepts/full/concept-01.webp',
-        original_image_path: '/concepts/original/concept-01.png',
+        thumbnail_path: newConceptForm.image_url.trim() || '/concepts/thumbs/concept-01.webp',
+        full_image_path: newConceptForm.image_url.trim() || '/concepts/full/concept-01.webp',
+        original_image_path: newConceptForm.image_url.trim() || '/concepts/original/concept-01.png',
       };
 
       if (conceptImageFile) {
@@ -1176,6 +1177,7 @@ export default function AdminPage() {
                     subtitle: '',
                     description: '',
                     alt_text: `Four views of ${codeStr} Johnnie Walker Blue Label bottle artwork`,
+                    image_url: '',
                   });
                   setConceptImageFile(null);
                   setConceptImagePreview(null);
@@ -1206,6 +1208,7 @@ export default function AdminPage() {
                           alt={design.alt_text}
                           fill
                           className="object-contain p-2"
+                          unoptimized={Boolean(design.thumbnail_path?.startsWith('data:') || design.thumbnail_path?.startsWith('http'))}
                         />
                         {isWinner && (
                           <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-gold text-ink font-bold text-[10px] tracking-wider uppercase z-20">
@@ -1310,9 +1313,10 @@ export default function AdminPage() {
                           alt={editingDesign.title}
                           fill
                           className="object-contain p-1"
+                          unoptimized={Boolean((editingDesign.thumbnail_path || editingDesign.full_image_path)?.startsWith('data:') || (editingDesign.thumbnail_path || editingDesign.full_image_path)?.startsWith('http'))}
                         />
                       </div>
-                      <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex-1 min-w-0 space-y-2">
                         <p className="text-xs text-ivory/80 font-mono truncate">{editingDesign.thumbnail_path}</p>
                         <div className="flex items-center gap-2">
                           <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-charcoal hover:bg-ink-soft border border-charcoal-border text-xs text-gold hover:border-gold transition-colors">
@@ -1333,7 +1337,24 @@ export default function AdminPage() {
                             <span className="text-[11px] text-gold animate-pulse">Generating WebP & thumbs...</span>
                           )}
                         </div>
-                        <p className="text-[10px] text-ivory/40">Accepts PNG, JPG, WEBP. Automatically converts to WebP full & thumbnail.</p>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Or paste direct Image URL (https://...)"
+                            value={editingDesign.thumbnail_path?.startsWith('data:') ? '' : (editingDesign.thumbnail_path || '')}
+                            onChange={(e) => {
+                              const url = e.target.value.trim();
+                              setEditingDesign({
+                                ...editingDesign,
+                                thumbnail_path: url,
+                                full_image_path: url,
+                                original_image_path: url,
+                              });
+                            }}
+                            className="w-full px-2.5 py-1.5 bg-charcoal rounded border border-charcoal-border text-[11px] text-ivory placeholder:text-ivory/30 focus:border-gold outline-none"
+                          />
+                        </div>
+                        <p className="text-[10px] text-ivory/40">Accepts PNG, JPG, WEBP upload, or any direct image URL.</p>
                       </div>
                     </div>
                   </div>
@@ -1467,6 +1488,22 @@ export default function AdminPage() {
                           />
                         </label>
                       )}
+                    </div>
+                    <div className="mt-2 text-center text-ivory/40 text-[11px] font-medium">— OR PASTE DIRECT IMAGE URL —</div>
+                    <div className="mt-1.5">
+                      <input
+                        type="text"
+                        placeholder="Image URL (e.g. https://...)"
+                        value={newConceptForm.image_url || ''}
+                        onChange={(e) => {
+                          const url = e.target.value.trim();
+                          setNewConceptForm({ ...newConceptForm, image_url: url });
+                          if (url.startsWith('http')) {
+                            setConceptImagePreview(url);
+                          }
+                        }}
+                        className="w-full px-3 py-2 bg-ink rounded border border-charcoal-border text-xs text-ivory placeholder:text-ivory/30 focus:border-gold outline-none"
+                      />
                     </div>
                   </div>
 

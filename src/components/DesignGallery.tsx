@@ -93,6 +93,7 @@ export function DesignGallery() {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-contain p-2.5 transition-transform duration-700 ease-out group-hover:scale-135 group-hover:brightness-105 will-change-transform"
                     loading="lazy"
+                    unoptimized={Boolean((design.thumbnail_path || design.full_image_path)?.startsWith('data:') || (design.thumbnail_path || design.full_image_path)?.startsWith('http'))}
                   />
 
                   {/* Badges Overlay */}
