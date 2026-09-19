@@ -1148,6 +1148,115 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Hero Wallpaper & Atmosphere */}
+            <div className="p-6 rounded-xl bg-charcoal border border-charcoal-border space-y-5">
+              <div>
+                <h3 className="font-serif text-lg text-ivory">Hero Wallpaper & Atmospheric Transparency</h3>
+                <p className="text-xs text-ivory/60 mt-1">
+                  Configure the luxury background artwork and visual transparency displayed behind the hero proposition.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-ivory/60 mb-1.5">
+                  Wallpaper Image Source (Path or Full URL)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settingsForm.hero_wallpaper_url || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, hero_wallpaper_url: e.target.value })}
+                    placeholder="/brand/hero-wallpaper-2k.webp"
+                    className="flex-1 px-3.5 py-2.5 bg-ink rounded border border-charcoal-border focus:border-gold text-xs text-ivory"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSettingsForm({ ...settingsForm, hero_wallpaper_url: '/brand/hero-wallpaper-2k.webp' })}
+                    className="px-3 py-2 bg-charcoal-muted hover:bg-gold/20 text-ivory text-xs rounded border border-charcoal-border hover:border-gold/50 transition-colors"
+                  >
+                    Reset Default
+                  </button>
+                </div>
+              </div>
+
+              {/* Opacity slider and presets */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs uppercase tracking-wider text-ivory/60">
+                    Wallpaper Visibility / Opacity
+                  </label>
+                  <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded bg-gold/10 text-gold border border-gold/30">
+                    {settingsForm.hero_wallpaper_opacity ?? 55}% Visibility
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={settingsForm.hero_wallpaper_opacity ?? 55}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, hero_wallpaper_opacity: parseInt(e.target.value) })}
+                  className="w-full accent-gold cursor-pointer"
+                />
+
+                {/* Quick Presets */}
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <span className="text-[11px] text-ivory/40 uppercase tracking-wider mr-1">Presets:</span>
+                  {[
+                    { label: 'Subtle (30%)', val: 30 },
+                    { label: 'Balanced (55%)', val: 55 },
+                    { label: 'Vivid (75%)', val: 75 },
+                    { label: 'Maximum (90%)', val: 90 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setSettingsForm({ ...settingsForm, hero_wallpaper_opacity: preset.val })}
+                      className={`px-2.5 py-1 text-xs rounded border transition-colors ${
+                        (settingsForm.hero_wallpaper_opacity ?? 55) === preset.val
+                          ? 'bg-gold/20 text-gold border-gold'
+                          : 'bg-ink/60 text-ivory/70 border-charcoal-border hover:border-ivory/40'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Live Wallpaper Preview Window */}
+              <div className="pt-2">
+                <span className="block text-[11px] uppercase tracking-wider text-ivory/40 mb-2">Live Atmosphere Preview</span>
+                <div className="relative h-44 w-full rounded-lg overflow-hidden border border-charcoal-border bg-ink">
+                  {/* Wallpaper layer */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-opacity duration-300"
+                    style={{
+                      backgroundImage: `url(${settingsForm.hero_wallpaper_url || '/brand/hero-wallpaper-2k.webp'})`,
+                      opacity: (settingsForm.hero_wallpaper_opacity ?? 55) / 100,
+                    }}
+                  />
+                  {/* Scrim preview matching Hero */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/75 to-ink/20 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-transparent to-ink pointer-events-none" />
+                  
+                  {/* Foreground mock copy to inspect legibility */}
+                  <div className="relative z-10 p-5 max-w-sm">
+                    <span className="text-[10px] uppercase tracking-widest text-gold font-semibold block mb-1">
+                      Johnnie Walker Blue Label
+                    </span>
+                    <h4 className="font-serif text-lg text-ivory leading-snug">
+                      A Philippines Edition, <span className="italic text-gold font-serif">Chosen by You</span>
+                    </h4>
+                    <p className="text-[11px] text-ivory/70 mt-1 line-clamp-2">
+                      Review the 22 concept artworks and vote for the design you would be proud to collect.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <button
               type="submit"
               className="px-8 py-3 rounded bg-wine hover:bg-wine-light text-white font-semibold text-xs tracking-wider uppercase shadow-wine-glow transition-colors"

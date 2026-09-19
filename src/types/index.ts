@@ -48,6 +48,8 @@ export interface Campaign {
   main_shop_url: string;
   priority_sale_url: string | null;
   winning_design_id: string | null;
+  hero_wallpaper_url?: string | null;
+  hero_wallpaper_opacity?: number | null;
   created_at: string;
   updated_at: string;
 }

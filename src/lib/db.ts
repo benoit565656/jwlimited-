@@ -52,6 +52,8 @@ const INITIAL_CAMPAIGN: Campaign = {
   main_shop_url: 'https://manila-wine.com',
   priority_sale_url: null,
   winning_design_id: null,
+  hero_wallpaper_url: '/brand/hero-wallpaper-2k.webp',
+  hero_wallpaper_opacity: 55,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };

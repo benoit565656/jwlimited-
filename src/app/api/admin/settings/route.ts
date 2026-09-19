@@ -30,6 +30,8 @@ const CampaignSettingsSchema = z.object({
   timezone: z.string().default('Asia/Manila'),
   main_shop_url: z.string().url().optional(),
   priority_sale_url: z.string().nullable().optional(),
+  hero_wallpaper_url: z.string().nullable().optional(),
+  hero_wallpaper_opacity: z.number().min(0).max(100).nullable().optional(),
 });
 
 export async function GET(req: NextRequest) {

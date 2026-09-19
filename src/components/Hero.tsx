@@ -47,6 +47,10 @@ export function Hero() {
                       designs[0];
 
   const totalDesigns = designs.length || 22;
+  const wallpaperUrl = campaign?.hero_wallpaper_url || '/brand/hero-wallpaper-2k.webp';
+  const wallpaperOpacity = typeof campaign?.hero_wallpaper_opacity === 'number'
+    ? Math.min(Math.max(campaign.hero_wallpaper_opacity, 0), 100) / 100
+    : 0.55;
 
   return (
     <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 border-b border-charcoal-border bg-gradient-to-b from-ink via-ink-deep to-ink">
@@ -54,19 +58,21 @@ export function Hero() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-wine/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gold/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Atmospheric subtle background design artwork */}
+      {/* Cinematic luxury wallpaper background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
         <div className="relative w-full h-full">
           <Image
-            src={heroConcept?.full_image_path || '/concepts/full/concept-11.webp'}
-            alt=""
+            src={wallpaperUrl}
+            alt="Johnnie Walker Blue Label Philippines Edition"
             fill
             priority
-            className="object-cover object-center opacity-[0.07] scale-105 filter blur-[0.5px] mix-blend-screen"
+            unoptimized={Boolean(wallpaperUrl.startsWith('data:') || wallpaperUrl.startsWith('http'))}
+            style={{ opacity: wallpaperOpacity }}
+            className="object-cover object-center lg:object-[center_35%] scale-100 transition-opacity duration-700"
           />
-          {/* Subtle multi-layer gradient mask ensuring copy has 100% pristine contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-ink/90 via-ink/60 to-ink" />
-          <div className="absolute inset-0 bg-gradient-to-r from-ink via-transparent to-ink/90 opacity-90" />
+          {/* Directional gradient mask: deep ink backdrop for left copy, luminous transparency for wallpaper artwork */}
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/75 to-ink/20 lg:via-ink/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-transparent to-ink" />
         </div>
       </div>
 
@@ -146,7 +152,7 @@ export function Hero() {
                 {/* Glowing pedestal backing */}
                 <div className="absolute inset-0 bg-gradient-to-t from-gold/15 to-transparent rounded-2xl blur-xl" />
                 
-                <div className="relative p-4 rounded-xl bg-charcoal/90 border border-gold/30 shadow-luxury transition-all duration-300 group-hover:border-gold/60">
+                <div className="relative p-4 rounded-xl bg-charcoal/85 backdrop-blur-md border border-gold/30 shadow-luxury transition-all duration-300 group-hover:border-gold/60">
                   <div className="relative aspect-[3/2] w-full overflow-hidden rounded bg-ink-deep flex items-center justify-center">
                     <Image
                       src={heroConcept.full_image_path}
