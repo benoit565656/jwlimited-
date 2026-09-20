@@ -69,3 +69,30 @@
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out forwards;
 }
+
+/* Johnnie Walker Signature Rectangular Action Buttons (Dark Luxury Theme) */
+.jw-btn-primary {
+  @apply relative inline-flex items-center justify-center px-8 py-3.5 text-xs font-bold uppercase tracking-jw 
+         bg-gold hover:bg-gold-light text-ink border border-gold transition-all duration-300 shadow-gold-subtle;
+}
+
+.jw-btn-wine {
+  @apply relative inline-flex items-center justify-center px-8 py-3.5 text-xs font-bold uppercase tracking-jw 
+         bg-wine hover:bg-wine-light text-white border border-wine-light transition-all duration-300 shadow-wine-glow;
+}
+
+.jw-btn-outline {
+  @apply relative inline-flex items-center justify-center px-7 py-3.5 text-xs font-semibold uppercase tracking-jw 
+         bg-ink-deep/80 hover:bg-gold hover:text-ink text-ivory border border-charcoal-border hover:border-gold 
+         transition-all duration-300 backdrop-blur-sm;
+}
+
+.jw-btn-blue {
+  @apply relative inline-flex items-center justify-center px-8 py-3.5 text-xs font-bold uppercase tracking-jw 
+         bg-jw-blue hover:bg-jw-blue-light text-white border border-jw-blue-light transition-all duration-300 shadow-jw-blue-glow;
+}
+
+.jw-tag {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold uppercase tracking-jw 
+         rounded-none border;
+}

@@ -29,16 +29,16 @@ export function StorySection() {
         
         {/* Section Header */}
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-          <span className="text-xs uppercase tracking-widest text-gold font-semibold">
+          <div className="inline-flex items-center px-3.5 py-1 text-[11px] font-bold uppercase tracking-jw text-gold bg-gold/10 border border-gold/30">
             Community Curation Process
-          </span>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-ivory font-normal tracking-tight">
-            Your vote shapes the bottle
+          </div>
+          <h2 className="font-headline text-3xl sm:text-5xl lg:text-6xl text-ivory font-bold uppercase tracking-tight leading-[1.02]">
+            Your Vote Shapes The Bottle
           </h2>
-          <p className="text-base text-ivory/70 leading-relaxed font-light">
+          <p className="font-serif text-base sm:text-lg text-ivory/75 leading-relaxed font-light">
             This edition is being created for collectors who want something genuinely rare and distinctly Filipino. 
             Review each concept, choose the design that speaks to you, and help decide which artwork moves forward. 
-            Only one vote is allowed per person.
+            Exactly one vote is allowed per person.
           </p>
         </div>
 
@@ -49,22 +49,22 @@ export function StorySection() {
             return (
               <div 
                 key={step.number}
-                className="relative p-8 rounded-lg bg-charcoal/50 border border-charcoal-border hover:border-gold/40 transition-all duration-300 group"
+                className="relative p-8 bg-charcoal/40 backdrop-blur-sm border border-charcoal-border hover:border-gold/60 transition-all duration-300 group"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded bg-ink flex items-center justify-center text-gold border border-gold/30 group-hover:border-gold transition-colors">
-                    <Icon className="w-6 h-6" />
+                <div className="flex items-center justify-between mb-6 border-b border-charcoal-border pb-4">
+                  <div className="w-12 h-12 bg-ink flex items-center justify-center text-gold border border-gold/30 group-hover:border-gold transition-colors">
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <span className="font-serif text-3xl font-light text-ivory/20 group-hover:text-gold/40 transition-colors">
+                  <span className="font-headline text-3xl font-bold text-ivory/20 group-hover:text-gold transition-colors tracking-tight">
                     {step.number}
                   </span>
                 </div>
 
-                <h3 className="font-serif text-xl text-ivory mb-3 font-normal">
+                <h3 className="font-headline text-xl text-ivory uppercase tracking-normal font-semibold mb-2">
                   {step.title}
                 </h3>
 
-                <p className="text-sm text-ivory/70 leading-relaxed">
+                <p className="font-serif text-sm sm:text-base text-ivory/70 leading-relaxed font-light">
                   {step.description}
                 </p>
               </div>

@@ -12,30 +12,30 @@ export function Hero() {
   const minPrice = campaign?.min_price_php;
   const status = campaign?.status;
 
-  // Status badges
+  // Status badges - JW luxury rectangular styling
   let statusBadge = (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-gold/10 text-gold border border-gold/30">
-      <Sparkles className="w-3.5 h-3.5" />
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold tracking-jw uppercase bg-gold/15 text-gold border border-gold/40">
+      <Sparkles className="w-3 h-3 text-gold" />
       Community Voting Open
     </span>
   );
 
   if (status === 'draft') {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-charcoal text-ivory/60 border border-white/20">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold tracking-jw uppercase bg-charcoal text-ivory/60 border border-white/20">
         Preview Mode (Draft)
       </span>
     );
   } else if (status === 'voting_closed') {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-wine/20 text-wine-light border border-wine/40">
-        Voting Concluded — Finalizing Results
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold tracking-jw uppercase bg-wine/20 text-wine-light border border-wine/40">
+        Voting Concluded
       </span>
     );
   } else if (status === 'winner_announced') {
     statusBadge = (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-gold/20 text-gold border border-gold">
-        <Award className="w-3.5 h-3.5" />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold tracking-jw uppercase bg-gold/20 text-gold border border-gold">
+        <Award className="w-3 h-3" />
         Winning Design Announced
       </span>
     );
@@ -83,33 +83,41 @@ export function Hero() {
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
               {statusBadge}
-              <span className="text-xs uppercase tracking-widest text-ivory/60 font-medium">
-                100 numbered bottles. One winning design.
+              <span className="text-[11px] uppercase tracking-jw text-ivory/60 font-medium">
+                100 Numbered Bottles • One Winning Design
               </span>
             </div>
 
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-ivory font-normal tracking-tight leading-[1.12]">
-              A Philippines Edition, <span className="italic text-gold font-serif">Chosen by You</span>
-            </h1>
+            <div className="space-y-1">
+              <span className="block font-headline text-xs sm:text-sm uppercase tracking-jw-wide text-gold/90 font-semibold">
+                Johnnie Walker Blue Label • Proposed Release
+              </span>
+              <h1 className="font-headline text-4xl sm:text-6xl lg:text-7xl text-ivory font-bold uppercase tracking-tight leading-[0.98]">
+                A Philippines Edition
+              </h1>
+              <span className="block font-serif italic text-gold text-3xl sm:text-4xl lg:text-5xl font-normal pt-1">
+                Chosen by You
+              </span>
+            </div>
 
             <p className="text-base sm:text-lg text-ivory/80 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
               Help choose the artwork for a proposed Johnnie Walker Blue Label edition celebrating the Philippines. 
-              Review the {totalDesigns} concept artworks and vote for the design you would be proud to collect, display, or give.
+              Review the {totalDesigns} master concept artworks and vote for the design you would be proud to collect, display, or give.
             </p>
 
             {/* Campaign Key Highlights */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-charcoal-border/80 max-w-lg mx-auto lg:mx-0">
               <div className="text-center lg:text-left">
-                <span className="block text-xl sm:text-2xl font-serif text-gold font-medium">100</span>
-                <span className="text-[11px] uppercase tracking-wider text-ivory/50">Numbered Bottles</span>
+                <span className="block text-2xl sm:text-3xl font-headline text-gold font-bold">100</span>
+                <span className="text-[10px] uppercase tracking-jw text-ivory/60 font-medium">Numbered Bottles</span>
               </div>
               <div className="text-center lg:text-left">
-                <span className="block text-xl sm:text-2xl font-serif text-gold font-medium">{totalDesigns}</span>
-                <span className="text-[11px] uppercase tracking-wider text-ivory/50">Bottle Concepts</span>
+                <span className="block text-2xl sm:text-3xl font-headline text-gold font-bold">{totalDesigns}</span>
+                <span className="text-[10px] uppercase tracking-jw text-ivory/60 font-medium">Bottle Concepts</span>
               </div>
               <div className="text-center lg:text-left">
-                <span className="block text-xl sm:text-2xl font-serif text-gold font-medium">1 Vote</span>
-                <span className="text-[11px] uppercase tracking-wider text-ivory/50">Per Collector</span>
+                <span className="block text-2xl sm:text-3xl font-headline text-gold font-bold">1 Vote</span>
+                <span className="text-[10px] uppercase tracking-jw text-ivory/60 font-medium">Per Collector</span>
               </div>
             </div>
 
@@ -117,21 +125,21 @@ export function Hero() {
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <a
                 href="#designs"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded bg-wine hover:bg-wine-light text-white font-semibold text-sm tracking-wider uppercase shadow-wine-glow transition-all duration-200 group"
+                className="jw-btn-primary w-full sm:w-auto group"
               >
                 Explore the Designs
                 <ArrowDown className="w-4 h-4 ml-2 group-hover:translate-y-0.5 transition-transform" />
               </a>
 
               {userVote ? (
-                <div className="inline-flex items-center gap-2 px-4 py-3 rounded bg-charcoal border border-gold/40 text-xs text-gold">
+                <div className="inline-flex items-center gap-2 px-6 py-3.5 bg-ink-deep border border-gold/40 text-xs font-bold uppercase tracking-jw text-gold">
                   <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0" />
                   <span>Your vote is active</span>
                 </div>
               ) : (
                 <a
                   href="#how-it-works"
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded border border-ivory/20 hover:border-gold text-ivory text-sm font-medium tracking-wide transition-colors"
+                  className="jw-btn-outline w-full sm:w-auto"
                 >
                   How Voting Works
                 </a>
@@ -169,13 +177,13 @@ export function Hero() {
                       <span className="font-serif font-medium text-ivory text-sm block">
                         {heroConcept.title}
                       </span>
-                      <span className="text-[11px] text-gold/80 tracking-wide">
+                      <span className="text-[10px] uppercase tracking-jw text-gold font-semibold">
                         Four-Facet Panorama View
                       </span>
                     </div>
                     <a
                       href="#designs"
-                      className="px-3 py-1 rounded bg-charcoal-muted hover:bg-wine text-ivory text-[11px] font-medium tracking-wider uppercase border border-white/10 hover:border-wine transition-colors"
+                      className="px-3 py-1.5 bg-ink hover:bg-gold hover:text-ink text-ivory text-[10px] font-bold tracking-jw uppercase border border-gold/40 hover:border-gold transition-colors"
                     >
                       View All {totalDesigns}
                     </a>

@@ -116,22 +116,22 @@ export function PledgeSection() {
     <section id="edition" className="py-20 md:py-28 bg-ink border-b border-charcoal-border scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="bg-charcoal/80 border border-gold/40 rounded-2xl p-5 sm:p-8 md:p-12 shadow-luxury relative overflow-hidden">
+        <div className="bg-charcoal/60 border border-gold/40 p-6 sm:p-10 md:p-14 shadow-luxury relative overflow-hidden">
           {/* Subtle gold luxury decorative accent */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
 
           {/* Section Header */}
-          <div className="max-w-3xl mb-8 space-y-3">
-            <span className="text-xs uppercase tracking-widest text-gold font-semibold flex items-center gap-2">
-              <BookmarkCheck className="w-4 h-4 text-gold" />
-              Optional Collector Registry
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-ivory font-normal tracking-tight">
-              Want first access to the winning edition?
+          <div className="max-w-3xl mb-10 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 text-[11px] font-bold uppercase tracking-jw text-gold bg-gold/10 border border-gold/30">
+              <BookmarkCheck className="w-3.5 h-3.5 text-gold" />
+              Optional Collector Priority Registry
+            </div>
+            <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl text-ivory font-bold uppercase tracking-tight leading-[1.02]">
+              Want First Access To The Winning Edition?
             </h2>
-            <p className="text-sm text-ivory/75 leading-relaxed font-light">
+            <p className="font-serif text-base sm:text-lg text-ivory/75 leading-relaxed font-light">
               Only 100 individually numbered bottles are planned. {pricingCopy} Premium collector numbers—such as No. 1, No. 8, No. 88, and No. 100—may command higher prices. 
-              Registering your interest is free and non-binding. If production proceeds, you will receive the result and advance-purchase details before the public release.
+              Registering your interest is free and non-binding. If production proceeds, you will receive the result and advance-purchase details before any public release.
             </p>
           </div>
 
@@ -363,14 +363,14 @@ export function PledgeSection() {
             )}
 
             {/* Submit Button & Non-binding note */}
-            <div className="pt-4 border-t border-charcoal-border/70 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="pt-4 border-t border-charcoal-border flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-8 py-3.5 rounded bg-wine hover:bg-wine-light text-white font-semibold text-xs tracking-wider uppercase shadow-wine-glow transition-all duration-200 inline-flex items-center gap-2"
+                className="jw-btn-primary"
               >
                 {isSubmitting ? 'Registering...' : hasActivePledge ? 'Update My Interest' : 'Register My Interest'}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </button>
               <span className="text-[11px] text-ivory/50 font-light">
                 * Free, non-binding expression of interest. Not a purchase guarantee.

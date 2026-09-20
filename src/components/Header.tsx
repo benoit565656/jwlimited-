@@ -17,6 +17,7 @@ export function Header() {
   const navLinks = [
     { label: 'The Edition', href: '#edition' },
     { label: 'Designs', href: '#designs' },
+    { label: 'Tasting Notes', href: '#tasting-notes' },
     { label: 'How it Works', href: '#how-it-works' },
     { label: 'FAQ', href: '#faq' },
   ];
@@ -67,14 +68,15 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8" aria-label="Main Navigation">
+          <nav className="hidden md:flex items-center space-x-7" aria-label="Main Navigation">
             {navLinks.map(link => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-ivory/80 hover:text-gold transition-colors tracking-wide"
+                className="relative py-1 text-[11px] font-semibold uppercase tracking-jw text-ivory/80 hover:text-gold transition-colors group"
               >
                 {link.label}
+                <span className="absolute bottom-0 left-0 w-full h-[1px] bg-gold scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200" />
               </a>
             ))}
           </nav>
@@ -151,18 +153,18 @@ export function Header() {
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded text-xs font-semibold tracking-wider uppercase bg-transparent hover:bg-wine/10 text-gold border border-gold/60 hover:border-gold transition-all duration-200"
+                className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold tracking-jw uppercase bg-ink-deep hover:bg-gold hover:text-ink text-gold border border-gold/70 transition-all duration-300"
               >
                 <User className="w-3.5 h-3.5" />
-                Sign in to vote
+                Sign In
               </button>
             )}
 
             <a
               href="#designs"
-              className="inline-flex items-center px-4 py-2 rounded text-xs font-semibold tracking-wider uppercase bg-wine hover:bg-wine-light text-white transition-colors shadow-wine-glow"
+              className="inline-flex items-center px-5 py-2 text-xs font-bold tracking-jw uppercase bg-gold text-ink hover:bg-gold-light border border-gold transition-all duration-300 shadow-gold-subtle"
             >
-              Explore Designs
+              Cast Vote
             </a>
           </div>
 

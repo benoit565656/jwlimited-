@@ -50,24 +50,24 @@ export function FaqAccordion() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <span className="text-xs uppercase tracking-widest text-gold font-semibold">
-            Common Inquiries
-          </span>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-ivory font-normal tracking-tight">
+          <div className="inline-flex items-center px-3.5 py-1 text-[11px] font-bold uppercase tracking-jw text-gold bg-gold/10 border border-gold/30">
+            Collector Knowledge Base
+          </div>
+          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl text-ivory font-bold uppercase tracking-tight leading-[1.02]">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm sm:text-base text-ivory/70 font-light">
+          <p className="font-serif text-base text-ivory/70 font-light">
             Everything you need to know about the voting process, numbering, and priority access.
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
               <div
                 key={idx}
-                className="border border-charcoal-border hover:border-gold/30 rounded-xl bg-charcoal/50 backdrop-blur-sm overflow-hidden transition-all duration-200 shadow-sm"
+                className="border border-charcoal-border hover:border-gold/40 bg-charcoal/40 backdrop-blur-sm overflow-hidden transition-all duration-200"
               >
                 <button
                   onClick={() => toggle(idx)}

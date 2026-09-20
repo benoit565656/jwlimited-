@@ -30,15 +30,15 @@ export function ScarcitySection() {
             return (
               <div
                 key={i}
-                className="p-8 rounded-xl bg-charcoal/30 border border-charcoal-border/70 flex flex-col items-start"
+                className="p-8 bg-charcoal/40 backdrop-blur-sm border border-charcoal-border hover:border-gold/50 transition-all duration-300 flex flex-col items-start"
               >
-                <div className="w-12 h-12 rounded-lg bg-wine/20 text-gold flex items-center justify-center mb-6 border border-gold/30">
-                  <Icon className="w-6 h-6" />
+                <div className="w-12 h-12 bg-ink text-gold flex items-center justify-center mb-6 border border-gold/30">
+                  <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="font-serif text-lg text-ivory mb-2 font-normal">
+                <h3 className="font-headline text-xl text-ivory uppercase tracking-normal mb-2 font-semibold">
                   {pt.title}
                 </h3>
-                <p className="text-xs text-ivory/70 leading-relaxed">
+                <p className="font-serif text-sm text-ivory/70 leading-relaxed font-light">
                   {pt.desc}
                 </p>
               </div>

@@ -39,7 +39,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="md:col-span-3 space-y-3">
-            <h4 className="text-xs uppercase tracking-widest text-gold font-semibold">
+            <h4 className="font-headline text-xs uppercase tracking-jw text-gold font-bold">
               Campaign Navigation
             </h4>
             <ul className="space-y-2 text-xs">
@@ -48,6 +48,9 @@ export function Footer() {
               </li>
               <li>
                 <a href="#designs" className="hover:text-gold transition-colors">Concept Gallery</a>
+              </li>
+              <li>
+                <a href="#tasting-notes" className="hover:text-gold transition-colors text-gold/90 font-medium">Tasting Notes & Profile</a>
               </li>
               <li>
                 <a href="#how-it-works" className="hover:text-gold transition-colors">How Voting Works</a>
@@ -70,7 +73,7 @@ export function Footer() {
 
           {/* Legal & Governance */}
           <div className="md:col-span-4 space-y-3">
-            <h4 className="text-xs uppercase tracking-widest text-gold font-semibold">
+            <h4 className="font-headline text-xs uppercase tracking-jw text-gold font-bold">
               Legal & Policies
             </h4>
             <ul className="space-y-2 text-xs">
@@ -91,10 +94,10 @@ export function Footer() {
               </li>
             </ul>
 
-            <div className="p-3 rounded bg-charcoal/50 border border-charcoal-border text-[11px] text-ivory/60 mt-4 flex items-start gap-2">
-              <ShieldAlert className="w-4 h-4 text-wine-light flex-shrink-0 mt-0.5" />
+            <div className="p-3 bg-charcoal/50 border border-charcoal-border text-[11px] text-ivory/60 mt-4 flex items-start gap-2">
+              <ShieldAlert className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
               <span>
-                <strong>Responsible Drinking:</strong> Drinking alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems. For adults 18+ only.
+                <strong className="text-ivory">Please Drink Responsibly:</strong> Drinking alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems. Strictly for individuals aged 18 and above.
               </span>
             </div>
           </div>

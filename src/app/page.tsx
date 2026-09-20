@@ -2,6 +2,7 @@ import React from 'react';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { StorySection } from '@/components/StorySection';
+import { TastingNotesSection } from '@/components/TastingNotesSection';
 import { DesignGallery } from '@/components/DesignGallery';
 import { PledgeSection } from '@/components/PledgeSection';
 import { ScarcitySection } from '@/components/ScarcitySection';
@@ -14,6 +15,7 @@ export default function HomePage() {
       <Header />
       <Hero />
       <StorySection />
+      <TastingNotesSection />
       <DesignGallery />
       <PledgeSection />
       <ScarcitySection />
